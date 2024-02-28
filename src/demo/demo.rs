@@ -187,7 +187,7 @@ impl RcChunkyTriMesh {
     }
 
     pub fn tris_mut(&mut self) -> &mut [[i32; 3]] {
-        return unsafe { slice::from_raw_parts_mut(self.inner_mut().tris as * mut _, self.inner().ntris as usize) };
+        return unsafe { slice::from_raw_parts_mut(self.inner_mut().tris as *mut _, self.inner().ntris as usize) };
     }
 
     pub fn max_tris_per_chunk(&self) -> usize {
