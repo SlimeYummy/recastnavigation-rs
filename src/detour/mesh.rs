@@ -30,21 +30,6 @@ const DT_TILE_FREE_DATA: i32 = 1;
 #[cxx::bridge]
 pub(crate) mod ffi {
     #[repr(u32)]
-    enum dtFindPathOptions {
-        DT_FINDPATH_ANY_ANGLE = 0x02,
-    }
-
-    #[repr(u32)]
-    enum dtRaycastOptions {
-        DT_RAYCAST_USE_COSTS = 0x01,
-    }
-
-    #[repr(u32)]
-    enum dtDetailTriEdgeFlags {
-        DT_DETAIL_EDGE_BOUNDARY = 0x01,
-    }
-
-    #[repr(u32)]
     enum dtPolyTypes {
         DT_POLYTYPE_GROUND = 0,
         DT_POLYTYPE_OFFMESH_CONNECTION = 1,
@@ -58,9 +43,6 @@ pub(crate) mod ffi {
         type dtPolyRef = crate::detour::mesh::DtPolyRef;
         type dtTileRef = crate::detour::mesh::DtTileRef;
 
-        type dtFindPathOptions;
-        type dtRaycastOptions;
-        type dtDetailTriEdgeFlags;
         type dtPolyTypes;
 
         type dtPoly = crate::detour::mesh::DtPoly;
@@ -152,9 +134,6 @@ pub(crate) mod ffi {
     }
 }
 
-pub type DtFindPathOptions = ffi::dtFindPathOptions;
-pub type DtRaycastOptions = ffi::dtRaycastOptions;
-pub type DtDetailTriEdgeFlags = ffi::dtDetailTriEdgeFlags;
 pub type DtPolyTypes = ffi::dtPolyTypes;
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
