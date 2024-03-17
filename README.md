@@ -1,6 +1,6 @@
 [![Release Doc](https://docs.rs/recastnavigation-rs/badge.svg)](https://docs.rs/recastnavigation-rs)
 [![Crate](https://img.shields.io/crates/v/recastnavigation-rs.svg)](https://crates.io/crates/recastnavigation-rs)
-![github actions](https://github.com/FenQiDian/recastnavigation-rs/actions/workflows/main.yml/badge.svg)
+![github actions](https://github.com/SlimeYummy/recastnavigation-rs/actions/workflows/main.yml/badge.svg)
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/SlimeYummy/recastnavigation-rs/tree/master.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/SlimeYummy/recastnavigation-rs/tree/master)
 
 # Recastnavigation-rs
