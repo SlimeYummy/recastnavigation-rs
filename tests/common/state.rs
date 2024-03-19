@@ -1,4 +1,4 @@
-use crate::recast::*;
+use recastnavigation_rs::recast::*;
 
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "rkyv", derive(rkyv::Archive, rkyv::Serialize, rkyv::Deserialize))]

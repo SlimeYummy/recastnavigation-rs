@@ -1,11 +1,10 @@
+use recastnavigation_rs::demo::{load_nav_mesh, save_nav_mesh};
+use recastnavigation_rs::detour::DtNavMesh;
 use std::env;
 use std::env::consts::{ARCH, OS};
 use std::error::Error;
 use std::fs::{self, File};
 use std::io::prelude::*;
-
-use crate::demo::{load_nav_mesh, save_nav_mesh};
-use crate::detour::DtNavMesh;
 
 pub fn compare_with_cpp_out(rs_mesh: &DtNavMesh, folder: &str, name: &str) -> Result<(), Box<dyn Error>> {
     fs::create_dir_all(format!("./expected/{}", folder)).unwrap();
