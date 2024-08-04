@@ -39,4 +39,5 @@ static_assertions = "1.1"
 thiserror = "1.0"
 
 [build-dependencies]
+cc = { version = "1.0", features = ["parallel"] }
 cxx-build = "1.0"
