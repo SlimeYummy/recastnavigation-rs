@@ -204,7 +204,7 @@ pub fn dt_tri_area_2d(a: &[f32; 3], b: &[f32; 3], c: &[f32; 3]) -> f32 {
     return acx * abz - abx * acz;
 }
 
-pub fn dt_overlap_bounds(amin: &[i32; 2], amax: &[i32; 2], bmin: &[i32; 2], bmax: &[i32; 2]) -> bool {
+pub fn dt_overlap_bounds(amin: &[i32; 3], amax: &[i32; 3], bmin: &[i32; 3], bmax: &[i32; 3]) -> bool {
     let mut overlap = true;
     overlap = if amin[0] > bmax[0] || amax[0] < bmin[0] {
         false
