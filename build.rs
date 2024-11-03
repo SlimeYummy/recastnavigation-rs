@@ -72,5 +72,5 @@ fn list_cpp_files<P: AsRef<Path>>(dir: P) -> Vec<String> {
             }
         }
     }
-    return files;
+    files
 }

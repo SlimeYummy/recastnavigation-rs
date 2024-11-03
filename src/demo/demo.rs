@@ -61,13 +61,13 @@ pub struct RcMeshLoaderObj(UniquePtr<ffi::rcMeshLoaderObj>);
 
 impl Default for RcMeshLoaderObj {
     fn default() -> Self {
-        return RcMeshLoaderObj::new();
+        RcMeshLoaderObj::new()
     }
 }
 
 impl RcMeshLoaderObj {
     pub fn new() -> RcMeshLoaderObj {
-        return RcMeshLoaderObj(ffi::rcNewMeshLoaderObj());
+        RcMeshLoaderObj(ffi::rcNewMeshLoaderObj())
     }
 
     pub fn load(&mut self, file_name: &str) -> bool {
@@ -88,11 +88,11 @@ impl RcMeshLoaderObj {
     }
 
     pub fn get_vert_count(&self) -> i32 {
-        return self.0.getVertCount();
+        self.0.getVertCount()
     }
 
     pub fn get_tri_count(&self) -> i32 {
-        return self.0.getTriCount();
+        self.0.getTriCount()
     }
 
     pub fn get_file_name(&self) -> &str {
@@ -106,8 +106,8 @@ pub fn load_nav_mesh(path: &str) -> RNResult<DtNavMesh> {
         if mesh.is_null() {
             return Err(RNError::Failed);
         }
-        return Ok(DtNavMesh::from_ptr(mesh));
-    };
+        Ok(DtNavMesh::from_ptr(mesh))
+    }
 }
 
 pub fn save_nav_mesh(mesh: &DtNavMesh, path: &str) {
@@ -161,17 +161,23 @@ impl Drop for RcChunkyTriMesh {
     }
 }
 
+impl Default for RcChunkyTriMesh {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RcChunkyTriMesh {
     fn inner(&self) -> &CxxRcChunkyTriMesh {
-        return unsafe { &*self.0 };
+        unsafe { &*self.0 }
     }
 
     fn inner_mut(&mut self) -> Pin<&mut CxxRcChunkyTriMesh> {
-        return unsafe { Pin::new_unchecked(&mut *self.0) };
+        unsafe { Pin::new_unchecked(&mut *self.0) }
     }
 
     pub fn new() -> RcChunkyTriMesh {
-        return RcChunkyTriMesh(unsafe { ffi::rcctm_new() });
+        RcChunkyTriMesh(unsafe { ffi::rcctm_new() })
     }
 
     pub fn nodes(&self) -> &[RcChunkyTriMeshNode] {
@@ -208,7 +214,7 @@ pub fn rc_create_chunky_tri_mesh(
     if !result {
         return Err(RNError::Failed);
     }
-    return Ok(());
+    Ok(())
 }
 
 pub fn rc_get_chunks_overlapping_rect(
@@ -220,11 +226,11 @@ pub fn rc_get_chunks_overlapping_rect(
     let n = unsafe {
         ffi::rcGetChunksOverlappingRect(cm.0, bmin.as_ptr(), bmax.as_ptr(), ids.as_mut_ptr(), ids.len() as i32)
     };
-    return n as usize;
+    n as usize
 }
 
 pub fn rc_get_chunks_overlapping_segment(cm: &RcChunkyTriMesh, p: &[f32; 2], q: &[f32; 2], ids: &mut [i32]) -> usize {
     let n =
         unsafe { ffi::rcGetChunksOverlappingSegment(cm.0, p.as_ptr(), q.as_ptr(), ids.as_mut_ptr(), ids.len() as i32) };
-    return n as usize;
+    n as usize
 }

@@ -33,7 +33,7 @@ unsafe impl ExternType for DtStatus {
 impl DtStatus {
     pub fn to_result(self) -> RNResult<()> {
         if self.0 & DT_SUCCESS != 0 {
-            return Ok(());
+            Ok(())
         } else if self.0 & DT_FAILURE != 0 {
             match self.0 & DT_STATUS_DETAIL_MASK {
                 DT_WRONG_MAGIC => return Err(RNError::WrongMagic),
@@ -75,8 +75,9 @@ pub struct DtBuf {
 }
 
 impl Default for DtBuf {
+    #[inline]
     fn default() -> Self {
-        return DtBuf::from_raw(std::ptr::null_mut(), 0);
+        DtBuf::from_raw(std::ptr::null_mut(), 0)
     }
 }
 
@@ -88,122 +89,153 @@ impl Drop for DtBuf {
 }
 
 impl DtBuf {
+    #[inline]
     pub(crate) fn from_raw(data: *mut u8, size: i32) -> DtBuf {
-        return DtBuf { data, size };
+        DtBuf { data, size }
     }
 
-    pub fn as_ref(&self) -> &[u8] {
+    #[inline]
+    pub fn as_slice(&self) -> &[u8] {
         return unsafe { std::slice::from_raw_parts(self.data, self.size as usize) };
     }
 
-    pub fn as_mut(&self) -> &mut [u8] {
+    #[inline]
+    pub fn as_slice_mut(&mut self) -> &mut [u8] {
         return unsafe { std::slice::from_raw_parts_mut(self.data, self.size as usize) };
     }
 
+    #[inline]
     pub fn len(&self) -> usize {
-        return self.size as usize;
+        self.size as usize
+    }
+
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
     }
 }
 
+#[inline]
 pub fn dt_vcross(a: &[f32; 3], b: &[f32; 3]) -> [f32; 3] {
-    return [
+    [
         a[1] * b[2] - a[2] * b[1],
         a[2] * b[0] - a[0] * b[2],
         a[0] * b[1] - a[1] * b[0],
-    ];
+    ]
 }
 
+#[inline]
 pub fn dt_vdot(a: &[f32; 3], b: &[f32; 3]) -> f32 {
-    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
 }
 
+#[inline]
 pub fn dt_vdot_2d(a: &[f32; 3], b: &[f32; 3]) -> f32 {
-    return a[0] * b[0] + a[2] * b[2];
+    a[0] * b[0] + a[2] * b[2]
 }
 
+#[inline]
 pub fn dt_vmad(a: &[f32; 3], b: &[f32; 3], s: f32) -> [f32; 3] {
-    return [a[0] + b[0] * s, a[1] + b[1] * s, a[2] + b[2] * s];
+    [a[0] + b[0] * s, a[1] + b[1] * s, a[2] + b[2] * s]
 }
 
+#[inline]
 pub fn dt_vlerp(a: &[f32; 3], b: &[f32; 3], t: f32) -> [f32; 3] {
-    return [
+    [
         a[0] + (b[0] - a[0]) * t,
         a[1] + (b[1] - a[1]) * t,
         a[2] + (b[2] - a[2]) * t,
-    ];
+    ]
 }
 
+#[inline]
 pub fn dt_vadd(a: &[f32; 3], b: &[f32; 3]) -> [f32; 3] {
-    return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+    [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
 }
 
+#[inline]
 pub fn dt_vsub(a: &[f32; 3], b: &[f32; 3]) -> [f32; 3] {
-    return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+    [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
 }
 
+#[inline]
 pub fn dt_vscale(a: &[f32; 3], b: f32) -> [f32; 3] {
-    return [a[0] * b, a[1] * b, a[2] * b];
+    [a[0] * b, a[1] * b, a[2] * b]
 }
 
+#[inline]
 pub fn dt_vmin(a: &[f32; 3], b: &[f32; 3]) -> [f32; 3] {
-    return [a[0].min(b[0]), a[1].min(b[1]), a[2].min(b[2])];
+    [a[0].min(b[0]), a[1].min(b[1]), a[2].min(b[2])]
 }
 
+#[inline]
 pub fn dt_vmax(a: &[f32; 3], b: &[f32; 3]) -> [f32; 3] {
-    return [a[0].max(b[0]), a[1].max(b[1]), a[2].max(b[2])];
+    [a[0].max(b[0]), a[1].max(b[1]), a[2].max(b[2])]
 }
 
+#[inline]
 pub fn dt_vlen(a: &[f32; 3]) -> f32 {
-    return dt_vlen2(a).sqrt();
+    dt_vlen2(a).sqrt()
 }
 
+#[inline]
 pub fn dt_vlen2(a: &[f32; 3]) -> f32 {
-    return a[0] * a[0] + a[1] * a[1] + a[2] * a[2];
+    a[0] * a[0] + a[1] * a[1] + a[2] * a[2]
 }
 
+#[inline]
 pub fn dt_vdist(a: &[f32; 3], b: &[f32; 3]) -> f32 {
-    return dt_vlen(&dt_vsub(a, b));
+    dt_vlen(&dt_vsub(a, b))
 }
 
+#[inline]
 pub fn dt_vdist2(a: &[f32; 3], b: &[f32; 3]) -> f32 {
-    return dt_vlen2(&dt_vsub(a, b));
+    dt_vlen2(&dt_vsub(a, b))
 }
 
+#[inline]
 pub fn dt_vdist_2d(a: &[f32; 3], b: &[f32; 3]) -> f32 {
-    return dt_vdist2_2d(a, b).sqrt();
+    dt_vdist2_2d(a, b).sqrt()
 }
 
+#[inline]
 pub fn dt_vdist2_2d(a: &[f32; 3], b: &[f32; 3]) -> f32 {
     let dx = a[0] - b[0];
     let dz = a[2] - b[2];
-    return dx * dx + dz * dz;
+    dx * dx + dz * dz
 }
 
+#[inline]
 pub fn dt_vnormalize(a: &[f32; 3]) -> [f32; 3] {
     let d = 1.0 / dt_vlen(a);
-    return [a[0] * d, a[1] * d, a[2] * d];
+    [a[0] * d, a[1] * d, a[2] * d]
 }
 
+#[inline]
 pub fn dt_visinf(a: &[f32; 3]) -> bool {
-    return a[0].is_infinite() && a[1].is_infinite() && a[2].is_infinite();
+    a[0].is_infinite() && a[1].is_infinite() && a[2].is_infinite()
 }
 
+#[inline]
 pub fn dt_visinf_2d(a: &[f32; 3]) -> bool {
-    return a[0].is_infinite() && a[2].is_infinite();
+    a[0].is_infinite() && a[2].is_infinite()
 }
 
+#[inline]
 pub fn dt_vperp_2d(a: &[f32; 3], b: &[f32; 3]) -> f32 {
-    return a[2] * b[0] - a[0] * b[2];
+    a[2] * b[0] - a[0] * b[2]
 }
 
+#[inline]
 pub fn dt_tri_area_2d(a: &[f32; 3], b: &[f32; 3], c: &[f32; 3]) -> f32 {
     let abx = b[0] - a[0];
     let abz = b[2] - a[2];
     let acx = c[0] - a[0];
     let acz = c[2] - a[2];
-    return acx * abz - abx * acz;
+    acx * abz - abx * acz
 }
 
+#[inline]
 pub fn dt_overlap_bounds(amin: &[i32; 3], amax: &[i32; 3], bmin: &[i32; 3], bmax: &[i32; 3]) -> bool {
     let mut overlap = true;
     overlap = if amin[0] > bmax[0] || amax[0] < bmin[0] {
@@ -221,5 +253,5 @@ pub fn dt_overlap_bounds(amin: &[i32; 3], amax: &[i32; 3], bmin: &[i32; 3], bmax
     } else {
         overlap
     };
-    return overlap;
+    overlap
 }

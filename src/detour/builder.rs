@@ -63,16 +63,18 @@ pub struct DtNavMeshCreateParams<'t> {
 impl Debug for DtNavMeshCreateParams<'_> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let cp = CxxDtNavMeshCreateParams::from(self);
-        return write!(f, "{:?}", cp);
+        write!(f, "{:?}", cp)
     }
 }
 
+#[inline]
 fn unpack_ptr<T>(v: Option<&[T]>) -> *const T {
-    return v.map(|v| v.as_ptr()).unwrap_or(std::ptr::null());
+    v.map(|v| v.as_ptr()).unwrap_or(std::ptr::null())
 }
 
+#[inline]
 fn unpack_len<T>(v: Option<&[T]>) -> i32 {
-    return v.map(|v| v.len() as i32).unwrap_or(0);
+    v.map(|v| v.len() as i32).unwrap_or(0)
 }
 
 #[repr(C)]
@@ -129,7 +131,7 @@ unsafe impl ExternType for CxxDtNavMeshCreateParams {
 
 impl CxxDtNavMeshCreateParams {
     fn from(params: &DtNavMeshCreateParams<'_>) -> CxxDtNavMeshCreateParams {
-        return CxxDtNavMeshCreateParams {
+        CxxDtNavMeshCreateParams {
             verts: unpack_ptr(params.verts) as *const _,
             vert_count: unpack_len(params.verts),
             polys: unpack_ptr(params.polys),
@@ -166,7 +168,7 @@ impl CxxDtNavMeshCreateParams {
             ch: params.ch,
 
             build_bv_tree: params.build_bv_tree,
-        };
+        }
     }
 }
 
@@ -193,10 +195,8 @@ pub fn dt_create_nav_mesh_data(params: &mut DtNavMeshCreateParams) -> RNResult<D
         return Err(RNError::InvalidParam);
     }
 
-    if cp.detail_meshes.is_null() {
-        if unpack_len(params.detail_meshes) != cp.poly_count {
-            return Err(RNError::InvalidParam);
-        }
+    if cp.detail_meshes.is_null() && unpack_len(params.detail_meshes) != cp.poly_count {
+        return Err(RNError::InvalidParam);
     }
 
     if unpack_len(params.off_mesh_con_rad) != cp.off_mesh_con_count {
@@ -221,22 +221,24 @@ pub fn dt_create_nav_mesh_data(params: &mut DtNavMeshCreateParams) -> RNResult<D
         if !res {
             return Err(RNError::Failed);
         }
-        return Ok(buf);
+        Ok(buf)
     }
 }
 
+#[inline]
 pub fn dt_nav_mesh_header_swap_endian(buf: &mut DtBuf) -> RNResult<()> {
     let res = unsafe { ffi::dtNavMeshHeaderSwapEndian(buf.data, buf.size) };
     if !res {
         return Err(RNError::Failed);
     }
-    return Ok(());
+    Ok(())
 }
 
+#[inline]
 pub fn dt_nav_mesh_data_swap_endian(buf: &mut DtBuf) -> RNResult<()> {
     let res = unsafe { ffi::dtNavMeshDataSwapEndian(buf.data, buf.size) };
     if !res {
         return Err(RNError::Failed);
     }
-    return Ok(());
+    Ok(())
 }
