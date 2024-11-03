@@ -1,7 +1,7 @@
 use thiserror::Error;
 
 #[derive(Error, Debug, Clone, Copy)]
-pub enum XError {
+pub enum RNError {
     #[error("Operation failed.")]
     Failed,
     #[error("Operation in progress.")]
@@ -23,3 +23,5 @@ pub enum XError {
     #[error("A tile has already been assigned to the given x,y coordinate")]
     AlreadyOccupied,
 }
+
+pub type RNResult<T> = Result<T, RNError>;

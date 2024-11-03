@@ -1,6 +1,6 @@
 use cxx::{type_id, ExternType};
 
-use crate::base::XError;
+use crate::error::{RNError, RNResult};
 
 #[repr(C)]
 #[derive(Debug, Default, Clone, Copy, PartialEq)]
@@ -31,25 +31,25 @@ unsafe impl ExternType for DtStatus {
 }
 
 impl DtStatus {
-    pub fn to_result(self) -> Result<(), XError> {
+    pub fn to_result(self) -> RNResult<()> {
         if self.0 & DT_SUCCESS != 0 {
             return Ok(());
         } else if self.0 & DT_FAILURE != 0 {
             match self.0 & DT_STATUS_DETAIL_MASK {
-                DT_WRONG_MAGIC => return Err(XError::WrongMagic),
-                DT_WRONG_VERSION => return Err(XError::WrongVersion),
-                DT_OUT_OF_MEMORY => return Err(XError::OutOfMemory),
-                DT_INVALID_PARAM => return Err(XError::InvalidParam),
-                DT_BUFFER_TOO_SMALL => return Err(XError::BufferTooSmall),
-                DT_OUT_OF_NODES => return Err(XError::OutOfNodes),
-                DT_PARTIAL_RESULT => return Err(XError::PartialResult),
-                DT_ALREADY_OCCUPIED => return Err(XError::AlreadyOccupied),
-                _ => return Err(XError::Failed),
+                DT_WRONG_MAGIC => return Err(RNError::WrongMagic),
+                DT_WRONG_VERSION => return Err(RNError::WrongVersion),
+                DT_OUT_OF_MEMORY => return Err(RNError::OutOfMemory),
+                DT_INVALID_PARAM => return Err(RNError::InvalidParam),
+                DT_BUFFER_TOO_SMALL => return Err(RNError::BufferTooSmall),
+                DT_OUT_OF_NODES => return Err(RNError::OutOfNodes),
+                DT_PARTIAL_RESULT => return Err(RNError::PartialResult),
+                DT_ALREADY_OCCUPIED => return Err(RNError::AlreadyOccupied),
+                _ => return Err(RNError::Failed),
             }
         } else if self.0 & DT_IN_PROGRESS != 0 {
-            return Err(XError::InProgress);
+            return Err(RNError::InProgress);
         } else {
-            return Err(XError::Failed);
+            return Err(RNError::Failed);
         }
     }
 }

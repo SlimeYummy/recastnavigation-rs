@@ -107,12 +107,7 @@ fn build_nav_mesh(folder: &str, name: &str) -> DtNavMesh {
         cfg.walkable_climb,
     )
     .unwrap();
-    compare_with_rkyv(
-        folder,
-        &format!("{}_solid_1", name),
-        &dump_heightfield_state(&solid),
-    )
-    .unwrap();
+    compare_with_rkyv(folder, &format!("{}_solid_1", name), &dump_heightfield_state(&solid)).unwrap();
 
     //
     // Step 3. Filter walkable surfaces.
@@ -121,12 +116,7 @@ fn build_nav_mesh(folder: &str, name: &str) -> DtNavMesh {
     rc_filter_low_hanging_walkable_obstacles(&mut ctx, cfg.walkable_climb, &mut solid);
     rc_filter_ledge_spans(&mut ctx, cfg.walkable_height, cfg.walkable_climb, &mut solid);
     rc_filter_walkable_low_height_spans(&mut ctx, cfg.walkable_height, &mut solid);
-    compare_with_rkyv(
-        folder,
-        &format!("{}_solid_2", name),
-        &dump_heightfield_state(&solid),
-    )
-    .unwrap();
+    compare_with_rkyv(folder, &format!("{}_solid_2", name), &dump_heightfield_state(&solid)).unwrap();
 
     //
     // Step 4. Partition walkable surface to simple regions.
@@ -144,12 +134,7 @@ fn build_nav_mesh(folder: &str, name: &str) -> DtNavMesh {
         cfg.merge_region_area,
     )
     .unwrap();
-    compare_with_rkyv(
-        folder,
-        &format!("{}_chf", name),
-        &dump_compact_heightfield_state(&chf),
-    )
-    .unwrap();
+    compare_with_rkyv(folder, &format!("{}_chf", name), &dump_compact_heightfield_state(&chf)).unwrap();
 
     //
     // Step 5. Trace and simplify region contours.
@@ -165,12 +150,7 @@ fn build_nav_mesh(folder: &str, name: &str) -> DtNavMesh {
         RcBuildContoursFlags::RC_CONTOUR_TESS_WALL_EDGES,
     )
     .unwrap();
-    compare_with_rkyv(
-        folder,
-        &format!("{}_cset", name),
-        &dump_contour_set_state(&cset),
-    )
-    .unwrap();
+    compare_with_rkyv(folder, &format!("{}_cset", name), &dump_contour_set_state(&cset)).unwrap();
 
     //
     // Step 6. Build polygons mesh from contours.
@@ -178,12 +158,7 @@ fn build_nav_mesh(folder: &str, name: &str) -> DtNavMesh {
 
     let mut pmesh = RcPolyMesh::new();
     rc_build_poly_mesh(&mut ctx, &cset, cfg.max_verts_per_poly, &mut pmesh).unwrap();
-    compare_with_rkyv(
-        folder,
-        &format!("{}_pmesh", name),
-        &dump_poly_mesh_state(&pmesh),
-    )
-    .unwrap();
+    compare_with_rkyv(folder, &format!("{}_pmesh", name), &dump_poly_mesh_state(&pmesh)).unwrap();
 
     //
     // Step 7. Create detail mesh which allows to access approximate height on each polygon.
@@ -199,12 +174,7 @@ fn build_nav_mesh(folder: &str, name: &str) -> DtNavMesh {
         &mut dmesh,
     )
     .unwrap();
-    compare_with_rkyv(
-        folder,
-        &format!("{}_dmesh", name),
-        &dump_poly_mesh_detail_state(&dmesh),
-    )
-    .unwrap();
+    compare_with_rkyv(folder, &format!("{}_dmesh", name), &dump_poly_mesh_detail_state(&dmesh)).unwrap();
 
     //
     // Step 8. Create Detour data from Recast poly mesh.

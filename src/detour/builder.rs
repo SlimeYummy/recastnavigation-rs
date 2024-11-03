@@ -3,9 +3,9 @@ use static_assertions::const_assert_eq;
 use std::fmt::{self, Debug, Formatter};
 use std::mem;
 
-use crate::base::XError;
 use crate::detour::base::{DtAABB, DtBuf};
 use crate::detour::mesh::DT_VERTS_PER_POLYGON;
+use crate::error::{RNError, RNResult};
 
 #[cxx::bridge]
 pub(crate) mod ffi {
@@ -170,73 +170,73 @@ impl CxxDtNavMeshCreateParams {
     }
 }
 
-pub fn dt_create_nav_mesh_data(params: &mut DtNavMeshCreateParams) -> Result<DtBuf, XError> {
+pub fn dt_create_nav_mesh_data(params: &mut DtNavMeshCreateParams) -> RNResult<DtBuf> {
     let mut cp = CxxDtNavMeshCreateParams::from(params);
 
     if cp.vert_count < 3 || cp.vert_count >= 0xFFFF {
-        return Err(XError::InvalidParam);
+        return Err(RNError::InvalidParam);
     }
 
     if cp.poly_count < 1 {
-        return Err(XError::InvalidParam);
+        return Err(RNError::InvalidParam);
     }
     if unpack_len(params.polys) != cp.poly_count * 2 * cp.nvp {
-        return Err(XError::InvalidParam);
+        return Err(RNError::InvalidParam);
     }
     if unpack_len(params.poly_flags) != cp.poly_count {
-        return Err(XError::InvalidParam);
+        return Err(RNError::InvalidParam);
     }
     if unpack_len(params.poly_areas) != cp.poly_count {
-        return Err(XError::InvalidParam);
+        return Err(RNError::InvalidParam);
     }
     if cp.nvp < 3 || cp.nvp > DT_VERTS_PER_POLYGON as i32 {
-        return Err(XError::InvalidParam);
+        return Err(RNError::InvalidParam);
     }
 
     if cp.detail_meshes.is_null() {
         if unpack_len(params.detail_meshes) != cp.poly_count {
-            return Err(XError::InvalidParam);
+            return Err(RNError::InvalidParam);
         }
     }
 
     if unpack_len(params.off_mesh_con_rad) != cp.off_mesh_con_count {
-        return Err(XError::InvalidParam);
+        return Err(RNError::InvalidParam);
     }
     if unpack_len(params.off_mesh_con_flags) != cp.off_mesh_con_count {
-        return Err(XError::InvalidParam);
+        return Err(RNError::InvalidParam);
     }
     if unpack_len(params.off_mesh_con_areas) != cp.off_mesh_con_count {
-        return Err(XError::InvalidParam);
+        return Err(RNError::InvalidParam);
     }
     if unpack_len(params.off_mesh_con_dir) != cp.off_mesh_con_count {
-        return Err(XError::InvalidParam);
+        return Err(RNError::InvalidParam);
     }
     if unpack_len(params.off_mesh_con_user_id) != cp.off_mesh_con_count {
-        return Err(XError::InvalidParam);
+        return Err(RNError::InvalidParam);
     }
 
     unsafe {
         let mut buf = DtBuf::default();
         let res = ffi::dtCreateNavMeshData((&mut cp) as *mut _, &mut buf.data, &mut buf.size);
         if !res {
-            return Err(XError::Failed);
+            return Err(RNError::Failed);
         }
         return Ok(buf);
     }
 }
 
-pub fn dt_nav_mesh_header_swap_endian(buf: &mut DtBuf) -> Result<(), XError> {
+pub fn dt_nav_mesh_header_swap_endian(buf: &mut DtBuf) -> RNResult<()> {
     let res = unsafe { ffi::dtNavMeshHeaderSwapEndian(buf.data, buf.size) };
     if !res {
-        return Err(XError::Failed);
+        return Err(RNError::Failed);
     }
     return Ok(());
 }
 
-pub fn dt_nav_mesh_data_swap_endian(buf: &mut DtBuf) -> Result<(), XError> {
+pub fn dt_nav_mesh_data_swap_endian(buf: &mut DtBuf) -> RNResult<()> {
     let res = unsafe { ffi::dtNavMeshDataSwapEndian(buf.data, buf.size) };
     if !res {
-        return Err(XError::Failed);
+        return Err(RNError::Failed);
     }
     return Ok(());
 }

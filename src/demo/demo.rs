@@ -4,8 +4,8 @@ use std::mem;
 use std::pin::Pin;
 use std::slice;
 
-use crate::base::XError;
 use crate::detour::DtNavMesh;
+use crate::error::{RNError, RNResult};
 
 #[allow(dead_code)]
 #[cxx::bridge]
@@ -100,11 +100,11 @@ impl RcMeshLoaderObj {
     }
 }
 
-pub fn load_nav_mesh(path: &str) -> Result<DtNavMesh, XError> {
+pub fn load_nav_mesh(path: &str) -> RNResult<DtNavMesh> {
     unsafe {
         let mesh = ffi::loadNavMesh(path);
         if mesh.is_null() {
-            return Err(XError::Failed);
+            return Err(RNError::Failed);
         }
         return Ok(DtNavMesh::from_ptr(mesh));
     };
@@ -200,13 +200,13 @@ pub fn rc_create_chunky_tri_mesh(
     verts: &[[f32; 3]],
     tris: &[[i32; 3]],
     tris_per_chunk: i32,
-) -> Result<(), XError> {
+) -> RNResult<()> {
     let verts_ptr = verts.as_ptr() as *const f32;
     let tris_ptr = tris.as_ptr() as *const i32;
     let ntris = tris.len() as i32;
     let result = unsafe { ffi::rcCreateChunkyTriMesh(verts_ptr, tris_ptr, ntris, tris_per_chunk, cm.0) };
     if !result {
-        return Err(XError::Failed);
+        return Err(RNError::Failed);
     }
     return Ok(());
 }

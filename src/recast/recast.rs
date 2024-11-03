@@ -6,7 +6,7 @@ use std::ops::{Deref, DerefMut};
 use std::pin::Pin;
 use std::slice;
 
-use crate::base::XError;
+use crate::error::{RNError, RNResult};
 
 pub const RC_SPAN_HEIGHT_BITS: u32 = 13;
 pub const RC_SPAN_MAX_HEIGHT: u32 = (1 << RC_SPAN_HEIGHT_BITS) - 1;
@@ -1635,7 +1635,7 @@ pub fn rc_create_heightfield(
     max_bounds: &[f32; 3],
     cell_size: f32,
     cell_height: f32,
-) -> Result<(), XError> {
+) -> RNResult<()> {
     let res = unsafe {
         ffi::rcCreateHeightfield(
             context.0.pin_mut().get_unchecked_mut() as *mut _,
@@ -1648,7 +1648,7 @@ pub fn rc_create_heightfield(
             cell_height,
         )
     };
-    return if res { Ok(()) } else { Err(XError::Failed) };
+    return if res { Ok(()) } else { Err(RNError::Failed) };
 }
 
 pub fn rc_mark_walkable_triangles(
@@ -1657,9 +1657,9 @@ pub fn rc_mark_walkable_triangles(
     verts: &[[f32; 3]],
     tris: &[[i32; 3]],
     tri_area_ids: &mut [u8],
-) -> Result<(), XError> {
+) -> RNResult<()> {
     if tri_area_ids.len() < tris.len() {
-        return Err(XError::InvalidParam);
+        return Err(RNError::InvalidParam);
     }
     unsafe {
         ffi::rcMarkWalkableTriangles(
@@ -1681,9 +1681,9 @@ pub fn rc_clear_unwalkable_triangles(
     verts: &[[f32; 3]],
     tris: &[[i32; 3]],
     tri_area_ids: &mut [u8],
-) -> Result<(), XError> {
+) -> RNResult<()> {
     if tri_area_ids.len() < tris.len() {
-        return Err(XError::InvalidParam);
+        return Err(RNError::InvalidParam);
     }
     unsafe {
         ffi::rcClearUnwalkableTriangles(
@@ -1708,7 +1708,7 @@ pub fn rc_add_span(
     span_max: u16,
     area_id: u8,
     flag_merge_threshold: i32,
-) -> Result<(), XError> {
+) -> RNResult<()> {
     let res = unsafe {
         ffi::rcAddSpan(
             context.0.pin_mut().get_unchecked_mut() as *mut _,
@@ -1721,7 +1721,7 @@ pub fn rc_add_span(
             flag_merge_threshold,
         )
     };
-    return if res { Ok(()) } else { Err(XError::Failed) };
+    return if res { Ok(()) } else { Err(RNError::Failed) };
 }
 
 pub fn rc_rasterize_triangle(
@@ -1732,7 +1732,7 @@ pub fn rc_rasterize_triangle(
     area_id: u8,
     heightfield: &mut RcHeightfield,
     flag_merge_threshold: i32,
-) -> Result<(), XError> {
+) -> RNResult<()> {
     let res = unsafe {
         ffi::rcRasterizeTriangle(
             context.0.pin_mut().get_unchecked_mut() as *mut _,
@@ -1744,7 +1744,7 @@ pub fn rc_rasterize_triangle(
             flag_merge_threshold,
         )
     };
-    return if res { Ok(()) } else { Err(XError::Failed) };
+    return if res { Ok(()) } else { Err(RNError::Failed) };
 }
 
 pub fn rc_rasterize_triangles_1(
@@ -1754,9 +1754,9 @@ pub fn rc_rasterize_triangles_1(
     tri_area_ids: &[u8],
     heightfield: &mut RcHeightfield,
     flag_merge_threshold: i32,
-) -> Result<bool, XError> {
+) -> RNResult<bool> {
     if tri_area_ids.len() < tris.len() {
-        return Err(XError::InvalidParam);
+        return Err(RNError::InvalidParam);
     }
     let res = unsafe {
         ffi::rcRasterizeTriangles1(
@@ -1780,9 +1780,9 @@ pub fn rc_rasterize_triangles_2(
     tri_area_ids: &[u8],
     heightfield: &mut RcHeightfield,
     flag_merge_threshold: i32,
-) -> Result<bool, XError> {
+) -> RNResult<bool> {
     if tri_area_ids.len() < tris.len() {
-        return Err(XError::InvalidParam);
+        return Err(RNError::InvalidParam);
     }
     let res = unsafe {
         ffi::rcRasterizeTriangles2(
@@ -1805,9 +1805,9 @@ pub fn rc_rasterize_triangles_3(
     tri_area_ids: &[u8],
     heightfield: &mut RcHeightfield,
     flag_merge_threshold: i32,
-) -> Result<bool, XError> {
+) -> RNResult<bool> {
     if tri_area_ids.len() < verts.len() {
-        return Err(XError::InvalidParam);
+        return Err(RNError::InvalidParam);
     }
     let res = unsafe {
         ffi::rcRasterizeTriangles3(
@@ -1878,7 +1878,7 @@ pub fn rc_build_compact_heightfield(
     walkable_climb: i32,
     heightfield: &RcHeightfield,
     compact_heightfield: &mut RcCompactHeightfield,
-) -> Result<(), XError> {
+) -> RNResult<()> {
     let res = unsafe {
         ffi::rcBuildCompactHeightfield(
             context.0.pin_mut().get_unchecked_mut() as *mut _,
@@ -1888,14 +1888,14 @@ pub fn rc_build_compact_heightfield(
             compact_heightfield.inner_mut(),
         )
     };
-    return if res { Ok(()) } else { Err(XError::Failed) };
+    return if res { Ok(()) } else { Err(RNError::Failed) };
 }
 
 pub fn rc_erode_walkable_area(
     context: &mut RcContext,
     erosion_radius: i32,
     compact_heightfield: &mut RcCompactHeightfield,
-) -> Result<(), XError> {
+) -> RNResult<()> {
     let res = unsafe {
         ffi::rcErodeWalkableArea(
             context.0.pin_mut().get_unchecked_mut() as *mut _,
@@ -1903,20 +1903,20 @@ pub fn rc_erode_walkable_area(
             compact_heightfield.inner_mut(),
         )
     };
-    return if res { Ok(()) } else { Err(XError::Failed) };
+    return if res { Ok(()) } else { Err(RNError::Failed) };
 }
 
 pub fn rc_median_filter_walkable_area(
     context: &mut RcContext,
     compact_heightfield: &mut RcCompactHeightfield,
-) -> Result<(), XError> {
+) -> RNResult<()> {
     let res = unsafe {
         ffi::rcMedianFilterWalkableArea(
             context.0.pin_mut().get_unchecked_mut() as *mut _,
             compact_heightfield.inner_mut(),
         )
     };
-    return if res { Ok(()) } else { Err(XError::Failed) };
+    return if res { Ok(()) } else { Err(RNError::Failed) };
 }
 
 pub fn rc_mark_box_area(
@@ -1996,9 +1996,9 @@ pub fn rc_mark_cylinder_area(
     }
 }
 
-pub fn rc_build_distance_field(context: &mut RcContext, chf: &mut RcCompactHeightfield) -> Result<(), XError> {
+pub fn rc_build_distance_field(context: &mut RcContext, chf: &mut RcCompactHeightfield) -> RNResult<()> {
     let res = unsafe { ffi::rcBuildDistanceField(context.0.pin_mut().get_unchecked_mut() as *mut _, chf.inner_mut()) };
-    return if res { Ok(()) } else { Err(XError::Failed) };
+    return if res { Ok(()) } else { Err(RNError::Failed) };
 }
 
 pub fn rc_build_regions(
@@ -2007,7 +2007,7 @@ pub fn rc_build_regions(
     border_size: i32,
     min_region_area: i32,
     merge_region_area: i32,
-) -> Result<(), XError> {
+) -> RNResult<()> {
     let res = unsafe {
         ffi::rcBuildRegions(
             context.0.pin_mut().get_unchecked_mut() as *mut _,
@@ -2017,7 +2017,7 @@ pub fn rc_build_regions(
             merge_region_area,
         )
     };
-    return if res { Ok(()) } else { Err(XError::Failed) };
+    return if res { Ok(()) } else { Err(RNError::Failed) };
 }
 
 pub fn rc_build_layer_regions(
@@ -2025,7 +2025,7 @@ pub fn rc_build_layer_regions(
     chf: &mut RcCompactHeightfield,
     border_size: i32,
     min_region_area: i32,
-) -> Result<(), XError> {
+) -> RNResult<()> {
     let res = unsafe {
         ffi::rcBuildLayerRegions(
             context.0.pin_mut().get_unchecked_mut() as *mut _,
@@ -2034,7 +2034,7 @@ pub fn rc_build_layer_regions(
             min_region_area,
         )
     };
-    return if res { Ok(()) } else { Err(XError::Failed) };
+    return if res { Ok(()) } else { Err(RNError::Failed) };
 }
 
 pub fn rc_build_regions_monotone(
@@ -2043,7 +2043,7 @@ pub fn rc_build_regions_monotone(
     border_size: i32,
     min_region_area: i32,
     merge_region_area: i32,
-) -> Result<(), XError> {
+) -> RNResult<()> {
     let res = unsafe {
         ffi::rcBuildRegionsMonotone(
             context.0.pin_mut().get_unchecked_mut() as *mut _,
@@ -2053,7 +2053,7 @@ pub fn rc_build_regions_monotone(
             merge_region_area,
         )
     };
-    return if res { Ok(()) } else { Err(XError::Failed) };
+    return if res { Ok(()) } else { Err(RNError::Failed) };
 }
 
 pub fn rc_build_heightfield_layers(
@@ -2062,7 +2062,7 @@ pub fn rc_build_heightfield_layers(
     border_size: i32,
     walkable_height: i32,
     lset: &mut RcHeightfieldLayerSet,
-) -> Result<(), XError> {
+) -> RNResult<()> {
     let res = unsafe {
         ffi::rcBuildHeightfieldLayers(
             context.0.pin_mut().get_unchecked_mut() as *mut _,
@@ -2072,7 +2072,7 @@ pub fn rc_build_heightfield_layers(
             lset.inner_mut(),
         )
     };
-    return if res { Ok(()) } else { Err(XError::Failed) };
+    return if res { Ok(()) } else { Err(RNError::Failed) };
 }
 
 pub fn rc_build_contours(
@@ -2082,7 +2082,7 @@ pub fn rc_build_contours(
     max_edge_len: i32,
     cset: &mut RcContourSet,
     build_flags: RcBuildContoursFlags,
-) -> Result<(), XError> {
+) -> RNResult<()> {
     let res = unsafe {
         ffi::rcBuildContours(
             context.0.pin_mut().get_unchecked_mut() as *mut _,
@@ -2093,7 +2093,7 @@ pub fn rc_build_contours(
             build_flags.repr,
         )
     };
-    return if res { Ok(()) } else { Err(XError::Failed) };
+    return if res { Ok(()) } else { Err(RNError::Failed) };
 }
 
 pub fn rc_build_poly_mesh(
@@ -2101,7 +2101,7 @@ pub fn rc_build_poly_mesh(
     cset: &RcContourSet,
     nvp: i32,
     mesh: &mut RcPolyMesh,
-) -> Result<(), XError> {
+) -> RNResult<()> {
     let res = unsafe {
         ffi::rcBuildPolyMesh(
             context.0.pin_mut().get_unchecked_mut() as *mut _,
@@ -2110,7 +2110,7 @@ pub fn rc_build_poly_mesh(
             mesh.inner_mut(),
         )
     };
-    return if res { Ok(()) } else { Err(XError::Failed) };
+    return if res { Ok(()) } else { Err(RNError::Failed) };
 }
 
 pub fn rc_merge_poly_meshes(context: &mut RcContext, meshes: &[&RcPolyMesh], mesh: &mut RcPolyMesh) -> bool {
@@ -2132,7 +2132,7 @@ pub fn rc_build_poly_mesh_detail(
     sample_dist: f32,
     sample_max_error: f32,
     dmesh: &mut RcPolyMeshDetail,
-) -> Result<(), XError> {
+) -> RNResult<()> {
     let res = unsafe {
         ffi::rcBuildPolyMeshDetail(
             context.0.pin_mut().get_unchecked_mut() as *mut _,
@@ -2143,10 +2143,10 @@ pub fn rc_build_poly_mesh_detail(
             dmesh.inner_mut(),
         )
     };
-    return if res { Ok(()) } else { Err(XError::Failed) };
+    return if res { Ok(()) } else { Err(RNError::Failed) };
 }
 
-pub fn rc_copy_poly_mesh(context: &mut RcContext, src: &RcPolyMesh, dst: &mut RcPolyMesh) -> Result<(), XError> {
+pub fn rc_copy_poly_mesh(context: &mut RcContext, src: &RcPolyMesh, dst: &mut RcPolyMesh) -> RNResult<()> {
     let res = unsafe {
         ffi::rcCopyPolyMesh(
             context.0.pin_mut().get_unchecked_mut() as *mut _,
@@ -2154,7 +2154,7 @@ pub fn rc_copy_poly_mesh(context: &mut RcContext, src: &RcPolyMesh, dst: &mut Rc
             dst.inner_mut(),
         )
     };
-    return if res { Ok(()) } else { Err(XError::Failed) };
+    return if res { Ok(()) } else { Err(RNError::Failed) };
 }
 
 pub fn rc_merge_poly_mesh_details(

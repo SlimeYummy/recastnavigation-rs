@@ -1,5 +1,5 @@
-mod base;
-pub use base::*;
+mod error;
+pub use error::*;
 
 pub mod demo;
 pub mod detour;

@@ -5,8 +5,8 @@ use std::ops::{Deref, DerefMut};
 use std::pin::Pin;
 use std::{mem, ptr};
 
-use crate::base::XError;
 use crate::detour::base::{DtAABB, DtBuf};
+use crate::error::RNResult;
 
 pub const DT_VERTS_PER_POLYGON: usize = 6;
 
@@ -591,13 +591,13 @@ impl DtNavMesh {
         return self.0;
     }
 
-    pub fn with_params(params: &DtNavMeshParams) -> Result<DtNavMesh, XError> {
+    pub fn with_params(params: &DtNavMeshParams) -> RNResult<DtNavMesh> {
         let mut mesh = DtNavMesh::new();
         unsafe { mesh.inner_mut().init_with_params(params) }.to_result()?;
         return Ok(mesh);
     }
 
-    pub fn with_data(buf: DtBuf) -> Result<DtNavMesh, XError> {
+    pub fn with_data(buf: DtBuf) -> RNResult<DtNavMesh> {
         let mut mesh = DtNavMesh::new();
         unsafe {
             mesh.inner_mut()
@@ -612,7 +612,7 @@ impl DtNavMesh {
         return unsafe { &*self.inner().getParams() };
     }
 
-    pub fn add_tile(&mut self, buf: DtBuf, last_ref: DtTileRef) -> Result<DtTileRef, XError> {
+    pub fn add_tile(&mut self, buf: DtBuf, last_ref: DtTileRef) -> RNResult<DtTileRef> {
         let mut re = DtTileRef::default();
         unsafe {
             self.inner_mut()
@@ -623,7 +623,7 @@ impl DtNavMesh {
         return Ok(re);
     }
 
-    pub fn remove_tile(&mut self, re: DtTileRef) -> Result<(), XError> {
+    pub fn remove_tile(&mut self, re: DtTileRef) -> RNResult<()> {
         return unsafe { self.inner_mut().removeTile(re, ptr::null_mut(), ptr::null_mut()) }.to_result();
     }
 
@@ -680,7 +680,7 @@ impl DtNavMesh {
         }
     }
 
-    pub fn get_tile_and_poly_by_ref(&self, re: DtPolyRef) -> Result<(&DtMeshTile, &DtPoly), XError> {
+    pub fn get_tile_and_poly_by_ref(&self, re: DtPolyRef) -> RNResult<(&DtMeshTile, &DtPoly)> {
         let mut tile = std::ptr::null();
         let mut poly = std::ptr::null();
         unsafe { self.inner().getTileAndPolyByRef(re, &mut tile, &mut poly) }.to_result()?;
@@ -706,7 +706,7 @@ impl DtNavMesh {
         &self,
         prev_ref: DtPolyRef,
         poly_ref: DtPolyRef,
-    ) -> Result<([f32; 3], [f32; 3]), XError> {
+    ) -> RNResult<([f32; 3], [f32; 3])> {
         let mut start_pos = [0.0; 3];
         let mut end_pos = [0.0; 3];
         unsafe {
@@ -721,21 +721,21 @@ impl DtNavMesh {
         return unsafe { &*self.inner().getOffMeshConnectionByRef(re) };
     }
 
-    pub fn set_poly_flags(&mut self, re: DtPolyRef, flags: u16) -> Result<(), XError> {
+    pub fn set_poly_flags(&mut self, re: DtPolyRef, flags: u16) -> RNResult<()> {
         return self.inner_mut().setPolyFlags(re, flags).to_result();
     }
 
-    pub fn get_poly_flags(&self, re: DtPolyRef) -> Result<u16, XError> {
+    pub fn get_poly_flags(&self, re: DtPolyRef) -> RNResult<u16> {
         let mut flags = 0;
         unsafe { self.inner().getPolyFlags(re, &mut flags) }.to_result()?;
         return Ok(flags);
     }
 
-    pub fn set_poly_area(&mut self, re: DtPolyRef, area: u8) -> Result<(), XError> {
+    pub fn set_poly_area(&mut self, re: DtPolyRef, area: u8) -> RNResult<()> {
         return self.inner_mut().setPolyArea(re, area).to_result();
     }
 
-    pub fn get_poly_area(&self, re: DtPolyRef) -> Result<u8, XError> {
+    pub fn get_poly_area(&self, re: DtPolyRef) -> RNResult<u8> {
         let mut area = 0;
         unsafe { self.inner().getPolyArea(re, &mut area) }.to_result()?;
         return Ok(area);
@@ -745,11 +745,11 @@ impl DtNavMesh {
         return self.inner().getTileStateSize(tile.inner()) as usize;
     }
 
-    pub unsafe fn store_tile_state(&self, re: DtTileRef, data: &mut [u8]) -> Result<(), XError> {
+    pub unsafe fn store_tile_state(&self, re: DtTileRef, data: &mut [u8]) -> RNResult<()> {
         return unsafe { ffi::dtmt_storeTileState(self.inner(), re, data.as_mut_ptr(), data.len() as i32) }.to_result();
     }
 
-    pub unsafe fn restore_tile_state(&mut self, re: DtTileRef, data: &[u8]) -> Result<(), XError> {
+    pub unsafe fn restore_tile_state(&mut self, re: DtTileRef, data: &[u8]) -> RNResult<()> {
         return unsafe { ffi::dtmt_restoreTileState(self.inner_mut(), re, data.as_ptr(), data.len() as i32) }
             .to_result();
     }
