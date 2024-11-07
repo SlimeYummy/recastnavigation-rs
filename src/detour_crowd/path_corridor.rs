@@ -123,22 +123,27 @@ impl Debug for DtPathCorridor {
 }
 
 impl DtPathCorridor {
+    #[inline]
     fn inner(&self) -> &ffi::dtPathCorridor {
-        return &self.0;
+        &self.0
     }
 
+    #[inline]
     fn inner_mut(&mut self) -> Pin<&mut ffi::dtPathCorridor> {
-        return unsafe { Pin::new_unchecked(&mut self.0) };
+        unsafe { Pin::new_unchecked(&mut self.0) }
     }
 
+    #[inline]
     pub fn init(&mut self, max_path: i32) -> bool {
         return self.inner_mut().init(max_path);
     }
 
+    #[inline]
     pub fn reset(&mut self, rer: DtPolyRef, pos: &[f32; 3]) {
         unsafe { self.inner_mut().reset(rer, pos.as_ptr()) };
     }
 
+    #[inline]
     pub fn find_corners(
         &mut self,
         corner_verts: &mut [[f32; 3]],
@@ -163,6 +168,7 @@ impl DtPathCorridor {
         };
     }
 
+    #[inline]
     pub fn optimize_path_visibility(
         &mut self,
         next: &[f32; 3],
@@ -180,10 +186,12 @@ impl DtPathCorridor {
         };
     }
 
+    #[inline]
     pub fn optimize_path_topology(&mut self, navquery: &mut DtNavMeshQuery, filter: &DtQueryFilter) -> bool {
         return unsafe { self.inner_mut().optimizePathTopology(navquery.as_mut_ptr(), filter) };
     }
 
+    #[inline]
     pub fn move_over_offmesh_connection(
         &mut self,
         off_mesh_con_ref: DtPolyRef,
@@ -203,10 +211,12 @@ impl DtPathCorridor {
         };
     }
 
+    #[inline]
     pub fn fix_path_start(&mut self, safe_ref: DtPolyRef, safe_pos: &[f32; 3]) -> bool {
         return unsafe { self.inner_mut().fixPathStart(safe_ref, safe_pos.as_ptr()) };
     }
 
+    #[inline]
     pub fn trim_invalid_path(
         &mut self,
         safe_ref: DtPolyRef,
@@ -220,10 +230,12 @@ impl DtPathCorridor {
         };
     }
 
+    #[inline]
     pub fn is_valid(&mut self, max_look_ahead: i32, navquery: &mut DtNavMeshQuery, filter: &DtQueryFilter) -> bool {
         return unsafe { self.inner_mut().isValid(max_look_ahead, navquery.as_mut_ptr(), filter) };
     }
 
+    #[inline]
     pub fn move_position(&mut self, npos: &[f32; 3], navquery: &mut DtNavMeshQuery, filter: &DtQueryFilter) -> bool {
         return unsafe {
             self.inner_mut()
@@ -231,6 +243,7 @@ impl DtPathCorridor {
         };
     }
 
+    #[inline]
     pub fn move_target_position(
         &mut self,
         npos: &[f32; 3],
@@ -243,33 +256,40 @@ impl DtPathCorridor {
         };
     }
 
+    #[inline]
     pub fn set_corridor(&mut self, target: &[f32; 3], polys: &[DtPolyRef], npath: i32) {
         unsafe { self.inner_mut().setCorridor(target.as_ptr(), polys.as_ptr(), npath) };
     }
 
+    #[inline]
     pub fn pos(&self) -> &[f32; 3] {
         return unsafe { &*(self.inner().getPos() as *const [f32; 3]) };
     }
 
+    #[inline]
     pub fn target(&self) -> &[f32; 3] {
         return unsafe { &*(self.inner().getTarget() as *const [f32; 3]) };
     }
 
+    #[inline]
     pub fn first_poly(&self) -> DtPolyRef {
         return self.inner().getFirstPoly();
     }
 
+    #[inline]
     pub fn last_poly(&self) -> DtPolyRef {
         return self.inner().getLastPoly();
     }
 
+    #[inline]
     pub fn path(&self) -> &[DtPolyRef] {
         return unsafe { std::slice::from_raw_parts(self.inner().getPath(), self.inner().getPathCount() as usize) };
     }
 }
 
+#[inline]
 pub fn merge_corridor_start_moved(path: &mut [DtPolyRef], npath: usize, visited: &[DtPolyRef]) -> usize {
-    return unsafe {
+    unsafe {
         ffi::dtMergeCorridorStartMoved(
             path.as_mut_ptr(),
             npath as i32,
@@ -277,11 +297,12 @@ pub fn merge_corridor_start_moved(path: &mut [DtPolyRef], npath: usize, visited:
             visited.as_ptr(),
             visited.len() as i32,
         ) as usize
-    };
+    }
 }
 
+#[inline]
 pub fn merge_corridor_end_moved(path: &mut [DtPolyRef], npath: usize, visited: &[DtPolyRef]) -> usize {
-    return unsafe {
+    unsafe {
         ffi::dtMergeCorridorEndMoved(
             path.as_mut_ptr(),
             npath as i32,
@@ -289,11 +310,12 @@ pub fn merge_corridor_end_moved(path: &mut [DtPolyRef], npath: usize, visited: &
             visited.as_ptr(),
             visited.len() as i32,
         ) as usize
-    };
+    }
 }
 
+#[inline]
 pub fn merge_corridor_start_shortcut(path: &mut [DtPolyRef], npath: usize, visited: &[DtPolyRef]) -> usize {
-    return unsafe {
+    unsafe {
         ffi::dtMergeCorridorStartShortcut(
             path.as_mut_ptr(),
             npath as i32,
@@ -301,5 +323,5 @@ pub fn merge_corridor_start_shortcut(path: &mut [DtPolyRef], npath: usize, visit
             visited.as_ptr(),
             visited.len() as i32,
         ) as usize
-    };
+    }
 }

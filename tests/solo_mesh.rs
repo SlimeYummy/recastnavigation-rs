@@ -123,7 +123,7 @@ fn build_nav_mesh(folder: &str, name: &str) -> DtNavMesh {
     //
 
     let mut chf = RcCompactHeightfield::new();
-    rc_build_compact_heightfield(&mut ctx, cfg.walkable_height, cfg.walkable_climb, &mut solid, &mut chf).unwrap();
+    rc_build_compact_heightfield(&mut ctx, cfg.walkable_height, cfg.walkable_climb, &solid, &mut chf).unwrap();
     rc_erode_walkable_area(&mut ctx, cfg.walkable_radius, &mut chf).unwrap();
     rc_build_distance_field(&mut ctx, &mut chf).unwrap();
     rc_build_regions(
@@ -143,7 +143,7 @@ fn build_nav_mesh(folder: &str, name: &str) -> DtNavMesh {
     let mut cset = RcContourSet::new();
     rc_build_contours(
         &mut ctx,
-        &mut chf,
+        &chf,
         cfg.max_simplification_error,
         cfg.max_edge_len,
         &mut cset,
@@ -196,27 +196,29 @@ fn build_nav_mesh(folder: &str, name: &str) -> DtNavMesh {
         }
     }
 
-    let mut params = DtNavMeshCreateParams::default();
-    params.verts = Some(pmesh.verts());
-    params.polys = Some(pmesh.polys());
-    params.poly_areas = Some(pmesh.areas());
-    params.poly_flags = Some(pmesh.flags());
-    params.nvp = pmesh.nvp();
-    params.detail_meshes = Some(dmesh.meshes());
-    params.detail_verts = Some(dmesh.verts());
-    params.detail_tris = Some(dmesh.tris());
-    params.walkable_height = 2.0;
-    params.walkable_radius = 0.6;
-    params.walkable_climb = 0.9;
-    params.bmin = pmesh.bmin;
-    params.bmax = pmesh.bmax;
-    params.cs = cfg.cs;
-    params.ch = cfg.ch;
-    params.build_bv_tree = true;
+    let mut params = DtNavMeshCreateParams {
+        verts: Some(pmesh.verts()),
+        polys: Some(pmesh.polys()),
+        poly_areas: Some(pmesh.areas()),
+        poly_flags: Some(pmesh.flags()),
+        nvp: pmesh.nvp(),
+        detail_meshes: Some(dmesh.meshes()),
+        detail_verts: Some(dmesh.verts()),
+        detail_tris: Some(dmesh.tris()),
+        walkable_height: 2.0,
+        walkable_radius: 0.6,
+        walkable_climb: 0.9,
+        bmin: pmesh.bmin,
+        bmax: pmesh.bmax,
+        cs: cfg.cs,
+        ch: cfg.ch,
+        build_bv_tree: true,
+        ..DtNavMeshCreateParams::default()
+    };
     let nav_data = dt_create_nav_mesh_data(&mut params).unwrap();
 
     let nav_mesh = DtNavMesh::with_data(nav_data).unwrap();
     compare_with_cpp_out(&nav_mesh, folder, name).unwrap();
 
-    return nav_mesh;
+    nav_mesh
 }

@@ -41,7 +41,7 @@ pub fn compare_with_cpp_out(rs_mesh: &DtNavMesh, folder: &str, name: &str) -> Re
         }
     }
 
-    return Ok(());
+    Ok(())
 }
 
 #[cfg(feature = "rkyv")]
@@ -83,13 +83,13 @@ where
         expected_buf.extend_from_slice(&unaligned_buf);
 
         let archived = unsafe { rkyv::archived_root::<T>(&expected_buf) };
-        let mut deserializer = rkyv::Infallible::default();
+        let mut deserializer = rkyv::Infallible;
         let expected = archived.deserialize(&mut deserializer)?;
         if data != &expected {
             return Err(format!("compare_with_rkyv({})", path).into());
         }
     }
-    return Ok(());
+    Ok(())
 }
 
 #[cfg(not(feature = "rkyv"))]

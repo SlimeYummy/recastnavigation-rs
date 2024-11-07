@@ -42,7 +42,7 @@ pub fn dump_heightfield_state(hf: &RcHeightfield) -> RcHeightfieldState {
             span = sp.next();
         }
     }
-    return state;
+    state
 }
 
 #[derive(Debug, PartialEq)]
@@ -112,8 +112,8 @@ pub fn dump_compact_heightfield_state(chf: &RcCompactHeightfield) -> RcCompactHe
                 h: x.h(),
             })
             .collect(),
-        dist: chf.dist().iter().map(|x| *x).collect(),
-        areas: chf.areas().iter().map(|x| *x).collect(),
+        dist: chf.dist().to_vec(),
+        areas: chf.areas().to_vec(),
     };
 }
 

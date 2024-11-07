@@ -1,7 +1,6 @@
 use cxx::{type_id, ExternType};
 use static_assertions::const_assert_eq;
 use std::fmt::{self, Debug, Formatter};
-use std::mem;
 use std::pin::Pin;
 
 use crate::detour::{DtNavMesh, DtPolyRef, DtQueryFilter};
@@ -186,7 +185,7 @@ unsafe impl ExternType for DtCrowdAgentParams {
 
 impl Default for DtCrowdAgentParams {
     fn default() -> Self {
-        return DtCrowdAgentParams {
+        DtCrowdAgentParams {
             radius: 0.6,
             height: 2.0,
             max_acceleration: 8.0,
@@ -198,7 +197,7 @@ impl Default for DtCrowdAgentParams {
             obstacle_avoidance_type: 3,
             query_filter_type: 0,
             user_data: std::ptr::null_mut(),
-        };
+        }
     }
 }
 
@@ -222,71 +221,87 @@ impl Debug for DtCrowdAgent {
 }
 
 impl DtCrowdAgent {
+    #[inline]
     fn inner(&self) -> &ffi::dtCrowdAgent {
-        return &self.0;
+        &self.0
     }
 
+    #[inline]
     fn inner_mut(&mut self) -> Pin<&mut ffi::dtCrowdAgent> {
-        return unsafe { Pin::new_unchecked(&mut self.0) };
+        unsafe { Pin::new_unchecked(&mut self.0) }
     }
 
+    #[inline]
     pub fn as_ptr(&self) -> *const ffi::dtCrowdAgent {
-        return &self.0;
+        &self.0
     }
 
+    #[inline]
     pub fn as_mut_ptr(&mut self) -> *mut ffi::dtCrowdAgent {
-        return &mut self.0;
+        &mut self.0
     }
 
+    #[inline]
     pub fn active(&self) -> bool {
         return ffi::dtca_getActive(self.inner());
     }
 
+    #[inline]
     pub fn set_active(&mut self, active: bool) {
         ffi::dtca_setActive(self.inner_mut(), active);
     }
 
-    // TODO: CrowdAgentState
+    #[inline] // TODO: CrowdAgentState
     pub fn state(&self) -> u8 {
         return ffi::dtca_getState(self.inner());
     }
 
+    #[inline]
     pub fn set_state(&mut self, state: u8) {
         ffi::dtca_setState(self.inner_mut(), state);
     }
 
+    #[inline]
     pub fn partial(&self) -> bool {
         return ffi::dtca_getPartial(self.inner());
     }
 
+    #[inline]
     pub fn set_partial(&mut self, partial: bool) {
         ffi::dtca_setPartial(self.inner_mut(), partial);
     }
 
+    #[inline]
     pub fn corridor(&self) -> &DtPathCorridor {
-        return unsafe { mem::transmute(ffi::dtca_getCorridor(self.inner())) };
+        return unsafe { &*(ffi::dtca_getCorridor(self.inner()) as *const DtPathCorridor) };
     }
 
+    #[inline]
     pub fn corridor_mut(&mut self) -> &mut DtPathCorridor {
-        return unsafe { mem::transmute(ffi::dtca_getCorridor_mut(self.inner_mut())) };
+        return unsafe { &mut *(ffi::dtca_getCorridor_mut(self.inner_mut()) as *mut DtPathCorridor) };
     }
 
+    #[inline]
     pub fn boundary(&self) -> &DtLocalBoundary {
-        return unsafe { mem::transmute(ffi::dtca_getBoundary(self.inner())) };
+        return unsafe { &*(ffi::dtca_getBoundary(self.inner()) as *const DtLocalBoundary) };
     }
 
+    #[inline]
     pub fn boundary_mut(&mut self) -> &mut DtLocalBoundary {
-        return unsafe { mem::transmute(ffi::dtca_getBoundary_mut(self.inner_mut())) };
+        return unsafe { &mut *(ffi::dtca_getBoundary_mut(self.inner_mut()) as *mut DtLocalBoundary) };
     }
 
+    #[inline]
     pub fn topology_opt_time(&self) -> f32 {
         return ffi::dtca_getTopologyOptTime(self.inner());
     }
 
+    #[inline]
     pub fn set_topology_opt_time(&mut self, topology_opt_time: f32) {
         ffi::dtca_setTopologyOptTime(self.inner_mut(), topology_opt_time);
     }
 
+    #[inline]
     pub fn neis(&self) -> &[DtCrowdNeighbour] {
         return unsafe {
             std::slice::from_raw_parts(
@@ -296,6 +311,7 @@ impl DtCrowdAgent {
         };
     }
 
+    #[inline]
     pub fn neis_mut(&mut self) -> &mut [DtCrowdNeighbour] {
         return unsafe {
             std::slice::from_raw_parts_mut(
@@ -305,62 +321,77 @@ impl DtCrowdAgent {
         };
     }
 
+    #[inline]
     pub fn desired_speed(&self) -> f32 {
         return ffi::dtca_getDesiredSpeed(self.inner());
     }
 
+    #[inline]
     pub fn set_desired_speed(&mut self, desired_speed: f32) {
         ffi::dtca_setDesiredSpeed(self.inner_mut(), desired_speed);
     }
 
+    #[inline]
     pub fn npos(&self) -> &[f32; 3] {
         return unsafe { &*(ffi::dtca_getNpos(self.inner()) as *const [f32; 3]) };
     }
 
+    #[inline]
     pub fn set_npos(&mut self, npos: &[f32; 3]) {
         unsafe { ffi::dtca_setNpos(self.inner_mut(), npos.as_ptr()) };
     }
 
+    #[inline]
     pub fn disp(&self) -> &[f32; 3] {
         return unsafe { &*(ffi::dtca_getDisp(self.inner()) as *const [f32; 3]) };
     }
 
+    #[inline]
     pub fn set_disp(&mut self, disp: &[f32; 3]) {
         unsafe { ffi::dtca_setDisp(self.inner_mut(), disp.as_ptr()) };
     }
 
+    #[inline]
     pub fn dvel(&self) -> &[f32; 3] {
         return unsafe { &*(ffi::dtca_getDvel(self.inner()) as *const [f32; 3]) };
     }
 
+    #[inline]
     pub fn set_dvel(&mut self, dvel: &[f32; 3]) {
         unsafe { ffi::dtca_setDvel(self.inner_mut(), dvel.as_ptr()) };
     }
 
+    #[inline]
     pub fn nvel(&self) -> &[f32; 3] {
         return unsafe { &*(ffi::dtca_getNvel(self.inner()) as *const [f32; 3]) };
     }
 
+    #[inline]
     pub fn set_nvel(&mut self, nvel: &[f32; 3]) {
         unsafe { ffi::dtca_setNvel(self.inner_mut(), nvel.as_ptr()) };
     }
 
+    #[inline]
     pub fn vel(&self) -> &[f32; 3] {
         return unsafe { &*(ffi::dtca_getVel(self.inner()) as *const [f32; 3]) };
     }
 
+    #[inline]
     pub fn set_vel(&mut self, vel: &[f32; 3]) {
         unsafe { ffi::dtca_setVel(self.inner_mut(), vel.as_ptr()) };
     }
 
+    #[inline]
     pub fn params(&self) -> &DtCrowdAgentParams {
         return unsafe { &*ffi::dtca_getParams(self.inner()) };
     }
 
+    #[inline]
     pub fn params_mut(&mut self) -> &mut DtCrowdAgentParams {
         return unsafe { &mut *ffi::dtca_getParams_mut(self.inner_mut()) };
     }
 
+    #[inline]
     pub fn corner_verts(&self) -> &[[f32; 3]] {
         return unsafe {
             std::slice::from_raw_parts(
@@ -370,6 +401,7 @@ impl DtCrowdAgent {
         };
     }
 
+    #[inline]
     pub fn corner_verts_mut(&mut self) -> &mut [[f32; 3]] {
         return unsafe {
             std::slice::from_raw_parts_mut(
@@ -379,6 +411,7 @@ impl DtCrowdAgent {
         };
     }
 
+    #[inline]
     pub fn corner_flags(&self) -> &[u8] {
         return unsafe {
             std::slice::from_raw_parts(
@@ -388,6 +421,7 @@ impl DtCrowdAgent {
         };
     }
 
+    #[inline]
     pub fn corner_flags_mut(&mut self) -> &mut [u8] {
         return unsafe {
             std::slice::from_raw_parts_mut(
@@ -397,6 +431,7 @@ impl DtCrowdAgent {
         };
     }
 
+    #[inline]
     pub fn corner_polys(&self) -> &[DtPolyRef] {
         return unsafe {
             std::slice::from_raw_parts(
@@ -406,6 +441,7 @@ impl DtCrowdAgent {
         };
     }
 
+    #[inline]
     pub fn corner_polys_mut(&mut self) -> &mut [DtPolyRef] {
         return unsafe {
             std::slice::from_raw_parts_mut(
@@ -415,54 +451,67 @@ impl DtCrowdAgent {
         };
     }
 
+    #[inline]
     pub fn ncorners(&self) -> i32 {
         return ffi::dtca_getNcorners(self.inner());
     }
 
+    #[inline]
     pub fn target_state(&self) -> u8 {
         return ffi::dtca_getTargetState(self.inner());
     }
 
+    #[inline]
     pub fn set_target_state(&mut self, target_state: u8) {
         ffi::dtca_setTargetState(self.inner_mut(), target_state);
     }
 
+    #[inline]
     pub fn target_ref(&self) -> DtPolyRef {
         return ffi::dtca_getTargetRef(self.inner());
     }
 
+    #[inline]
     pub fn set_target_ref(&mut self, target_ref: DtPolyRef) {
         ffi::dtca_setTargetRef(self.inner_mut(), target_ref);
     }
 
+    #[inline]
     pub fn target_pos(&self) -> &[f32; 3] {
         return unsafe { &*(ffi::dtca_getTargetPos(self.inner()) as *const [f32; 3]) };
     }
 
+    #[inline]
     pub fn set_target_pos(&mut self, target_pos: &[f32; 3]) {
         unsafe { ffi::dtca_setTargetPos(self.inner_mut(), target_pos.as_ptr()) };
     }
 
+    #[inline]
     pub fn target_pathq_ref(&self) -> u32 {
         return ffi::dtca_getTargetPathqRef(self.inner());
     }
 
+    #[inline]
     pub fn set_target_pathq_ref(&mut self, target_pathq_ref: u32) {
         ffi::dtca_setTargetPathqRef(self.inner_mut(), target_pathq_ref);
     }
 
+    #[inline]
     pub fn target_replan(&self) -> bool {
         return ffi::dtca_getTargetReplan(self.inner());
     }
 
+    #[inline]
     pub fn set_target_replan(&mut self, target_replan: bool) {
         ffi::dtca_setTargetReplan(self.inner_mut(), target_replan);
     }
 
+    #[inline]
     pub fn target_replan_time(&self) -> f32 {
         return ffi::dtca_getTargetReplanTime(self.inner());
     }
 
+    #[inline]
     pub fn set_target_replan_time(&mut self, target_replan_time: f32) {
         ffi::dtca_setTargetReplanTime(self.inner_mut(), target_replan_time);
     }
@@ -509,35 +558,49 @@ impl Drop for DtCrowd {
     }
 }
 
+impl Default for DtCrowd {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DtCrowd {
+    #[inline]
     pub fn new() -> DtCrowd {
-        return DtCrowd(ffi::dtAllocCrowd());
+        DtCrowd(ffi::dtAllocCrowd())
     }
 
+    #[inline]
     fn inner(&self) -> &ffi::dtCrowd {
-        return unsafe { &*self.0 };
+        unsafe { &*self.0 }
     }
 
+    #[inline]
     fn inner_mut(&mut self) -> Pin<&mut ffi::dtCrowd> {
-        return unsafe { Pin::new_unchecked(&mut *self.0) };
+        unsafe { Pin::new_unchecked(&mut *self.0) }
     }
 
+    #[inline]
     pub fn as_ptr(&self) -> *const ffi::dtCrowd {
-        return self.0;
+        self.0
     }
 
+    #[inline]
     pub fn as_mut_ptr(&mut self) -> *mut ffi::dtCrowd {
-        return self.0;
+        self.0
     }
 
+    #[inline]
     pub fn init(&mut self, max_agents: i32, max_agent_radius: f32, nav: &mut DtNavMesh) -> bool {
         return unsafe { self.inner_mut().init(max_agents, max_agent_radius, nav.as_mut_ptr()) };
     }
 
+    #[inline]
     pub fn set_obstacle_avoidance_params(&mut self, idx: i32, params: &DtObstacleAvoidanceParams) {
         unsafe { self.inner_mut().setObstacleAvoidanceParams(idx, params) };
     }
 
+    #[inline]
     pub fn get_obstacle_avoidance_params(&self, idx: i32) -> &DtObstacleAvoidanceParams {
         return unsafe { &*self.inner().getObstacleAvoidanceParams(idx) };
     }
@@ -546,38 +609,47 @@ impl DtCrowd {
     //     return unsafe { mem::transmute(self.inner().get) };
     // }
 
+    #[inline]
     pub fn get_agent_mut(&mut self, idx: i32) -> &mut DtCrowdAgent {
-        return unsafe { mem::transmute(self.inner_mut().getEditableAgent(idx)) };
+        return unsafe { &mut *(self.inner_mut().getEditableAgent(idx) as *mut DtCrowdAgent) };
     }
 
+    #[inline]
     pub fn get_agent_count(&self) -> i32 {
         return self.inner().getAgentCount();
     }
 
+    #[inline]
     pub fn add_agent(&mut self, pos: &[f32; 3], params: &DtCrowdAgentParams) -> i32 {
         return unsafe { self.inner_mut().addAgent(pos as *const _, params) };
     }
 
+    #[inline]
     pub fn update_agent_parameters(&mut self, idx: i32, params: &DtCrowdAgentParams) {
         unsafe { self.inner_mut().updateAgentParameters(idx, params) };
     }
 
+    #[inline]
     pub fn remove_agent(&mut self, idx: i32) {
         self.inner_mut().removeAgent(idx);
     }
 
+    #[inline]
     pub fn request_move_target(&mut self, idx: i32, re: DtPolyRef, pos: &[f32; 3]) -> bool {
         return unsafe { self.inner_mut().requestMoveTarget(idx, re, pos as *const _) };
     }
 
+    #[inline]
     pub fn request_move_velocity(&mut self, idx: i32, vel: &[f32; 3]) -> bool {
         return unsafe { self.inner_mut().requestMoveVelocity(idx, vel as *const _) };
     }
 
+    #[inline]
     pub fn reset_move_target(&mut self, idx: i32) -> bool {
         return self.inner_mut().resetMoveTarget(idx);
     }
 
+    #[inline]
     pub fn get_active_agents(&mut self, agents: &mut [&mut DtCrowdAgent]) -> i32 {
         return unsafe {
             self.inner_mut()
@@ -585,26 +657,32 @@ impl DtCrowd {
         };
     }
 
+    #[inline]
     pub fn update(&mut self, dt: f32, debug: &mut DtCrowdAgentDebugInfo) {
         unsafe { self.inner_mut().update(dt, debug) };
     }
 
+    #[inline]
     pub fn filter(&self, i: i32) -> &DtQueryFilter {
-        return unsafe { mem::transmute(self.inner().getFilter(i)) };
+        return unsafe { &*self.inner().getFilter(i) };
     }
 
+    #[inline]
     pub fn filter_mut(&mut self, i: i32) -> &mut DtQueryFilter {
-        return unsafe { mem::transmute(self.inner_mut().getEditableFilter(i)) };
+        return unsafe { &mut *self.inner_mut().getEditableFilter(i) };
     }
 
+    #[inline]
     pub fn query_half_extents(&self) -> &[f32; 3] {
         return unsafe { &*(self.inner().getQueryHalfExtents() as *const [f32; 3]) };
     }
 
+    #[inline]
     pub fn query_extents(&self) -> &[f32; 3] {
         return unsafe { &*(self.inner().getQueryExtents() as *const [f32; 3]) };
     }
 
+    #[inline]
     pub fn velocity_sample_count(&self) -> i32 {
         return self.inner().getVelocitySampleCount();
     }

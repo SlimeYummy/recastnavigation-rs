@@ -55,18 +55,22 @@ impl Debug for CxxDtLocalBoundary {
 }
 
 impl DtLocalBoundary {
+    #[inline]
     fn inner(&self) -> &ffi::dtLocalBoundary {
-        return &self.0;
+        &self.0
     }
 
+    #[inline]
     fn inner_mut(&mut self) -> Pin<&mut ffi::dtLocalBoundary> {
-        return unsafe { Pin::new_unchecked(&mut self.0) };
+        unsafe { Pin::new_unchecked(&mut self.0) }
     }
 
+    #[inline]
     pub fn reset(&mut self) {
         unsafe { ffi::dtlb_reset(self.inner_mut()) };
     }
 
+    #[inline]
     pub fn update(
         &mut self,
         re: DtPolyRef,
@@ -87,19 +91,22 @@ impl DtLocalBoundary {
         }
     }
 
+    #[inline]
     pub fn is_valid(&self, navquery: &mut DtNavMeshQuery, filter: &DtQueryFilter) -> bool {
         return unsafe { ffi::dtlb_isValid(self.inner(), navquery.as_mut_ptr(), filter) };
     }
 
+    #[inline]
     pub fn center(&self) -> &[f32; 3] {
         return unsafe { &*(ffi::dtlb_getCenter(self.inner()) as *const [f32; 3]) };
     }
 
+    #[inline]
     pub fn segment(&self, i: usize) -> Option<&DtAABB> {
         if i >= ffi::dtlb_getSegmentCount(self.inner()) as usize {
             return None;
         }
         let seg = unsafe { &*(ffi::dtlb_getSegment(self.inner(), i as i32) as *const DtAABB) };
-        return Some(seg);
+        Some(seg)
     }
 }
