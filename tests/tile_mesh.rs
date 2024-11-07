@@ -1,4 +1,5 @@
 #![cfg(feature = "rkyv")]
+#![allow(clippy::too_many_arguments)]
 
 use recastnavigation_rs::demo::*;
 use recastnavigation_rs::detour::*;
@@ -79,7 +80,7 @@ fn build_nav_mesh(folder: &str, name: &str, tile_size: f32, part: PartitionType)
 
     compare_with_cpp_out(&nav_mesh, folder, name).unwrap();
 
-    return nav_mesh;
+    nav_mesh
 }
 
 fn build_nav_mesh_tile(
@@ -176,17 +177,17 @@ fn build_nav_mesh_tile(
 
     let mut cid = [0; 64];
     let ncid = rc_get_chunks_overlapping_rect(
-        &chunky_mesh,
+        chunky_mesh,
         &[cfg.bmin[0], cfg.bmin[2]],
-        &mut [cfg.bmax[0], cfg.bmax[2]],
+        &[cfg.bmax[0], cfg.bmax[2]],
         &mut cid,
     );
     if ncid == 0 {
         return None;
     }
 
-    for i in 0..ncid {
-        let node = &chunky_mesh.nodes()[cid[i] as usize];
+    for cid in cid.iter().take(ncid) {
+        let node = &chunky_mesh.nodes()[*cid as usize];
 
         let tris = &chunky_mesh.tris()[node.i as usize..(node.i + node.n) as usize];
         triareas[0..node.n as usize].fill(0);
@@ -223,7 +224,7 @@ fn build_nav_mesh_tile(
     // between walkable cells will be calculated.
 
     let mut chf = RcCompactHeightfield::new();
-    rc_build_compact_heightfield(&mut ctx, cfg.walkable_height, cfg.walkable_climb, &mut solid, &mut chf).unwrap();
+    rc_build_compact_heightfield(&mut ctx, cfg.walkable_height, cfg.walkable_climb, &solid, &mut chf).unwrap();
 
     // Erode the walkable area by agent radius.
     rc_erode_walkable_area(&mut ctx, cfg.walkable_radius, &mut chf).unwrap();
@@ -245,7 +246,7 @@ fn build_nav_mesh_tile(
     let mut cset = RcContourSet::new();
     rc_build_contours(
         &mut ctx,
-        &mut chf,
+        &chf,
         cfg.max_simplification_error,
         cfg.max_edge_len,
         &mut cset,
@@ -291,28 +292,30 @@ fn build_nav_mesh_tile(
         }
     }
 
-    let mut params = DtNavMeshCreateParams::default();
-    params.verts = Some(pmesh.verts());
-    params.polys = Some(pmesh.polys());
-    params.poly_areas = Some(pmesh.areas());
-    params.poly_flags = Some(pmesh.flags());
-    params.nvp = pmesh.nvp();
-    params.detail_meshes = Some(dmesh.meshes());
-    params.detail_verts = Some(dmesh.verts());
-    params.detail_tris = Some(dmesh.tris());
-    params.walkable_height = 2.0;
-    params.walkable_radius = 0.6;
-    params.walkable_climb = 0.9;
-    params.tile_x = tx;
-    params.tile_y = ty;
-    params.tile_layer = 0;
-    params.bmin = pmesh.bmin;
-    params.bmax = pmesh.bmax;
-    params.cs = cfg.cs;
-    params.ch = cfg.ch;
-    params.build_bv_tree = true;
+    let mut params = DtNavMeshCreateParams {
+        verts: Some(pmesh.verts()),
+        polys: Some(pmesh.polys()),
+        poly_areas: Some(pmesh.areas()),
+        poly_flags: Some(pmesh.flags()),
+        nvp: pmesh.nvp(),
+        detail_meshes: Some(dmesh.meshes()),
+        detail_verts: Some(dmesh.verts()),
+        detail_tris: Some(dmesh.tris()),
+        walkable_height: 2.0,
+        walkable_radius: 0.6,
+        walkable_climb: 0.9,
+        tile_x: tx,
+        tile_y: ty,
+        tile_layer: 0,
+        bmin: pmesh.bmin,
+        bmax: pmesh.bmax,
+        cs: cfg.cs,
+        ch: cfg.ch,
+        build_bv_tree: true,
+        ..DtNavMeshCreateParams::default()
+    };
     let nav_data = dt_create_nav_mesh_data(&mut params).unwrap();
-    return Some(nav_data);
+    Some(nav_data)
 }
 
 fn next_pow2(mut v: i32) -> i32 {
@@ -323,7 +326,7 @@ fn next_pow2(mut v: i32) -> i32 {
     v |= v >> 8;
     v |= v >> 16;
     v += 1;
-    return v;
+    v
 }
 
 fn ilog2(mut v: i32) -> i32 {
@@ -346,5 +349,5 @@ fn ilog2(mut v: i32) -> i32 {
     r |= shift;
 
     r |= v >> 1;
-    return r;
+    r
 }

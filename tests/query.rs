@@ -3,7 +3,7 @@
 use recastnavigation_rs::demo::*;
 use recastnavigation_rs::detour::*;
 use recastnavigation_rs::detour_crowd::*;
-use recastnavigation_rs::XError;
+use recastnavigation_rs::RNError;
 use rkyv::{Archive, Deserialize, Serialize};
 
 mod common;
@@ -99,12 +99,14 @@ struct PathFindStaightData {
 }
 
 fn path_find_straight(nav_mesh: &DtNavMesh, start: [f32; 3], end: [f32; 3]) -> PathFindStaightData {
-    let query = DtNavMeshQuery::with_mesh(&nav_mesh, 2048).unwrap();
+    let query = DtNavMeshQuery::with_mesh(nav_mesh, 2048).unwrap();
     let filter = DtQueryFilter::default();
 
-    let mut data = PathFindStaightData::default();
-    data.start = start;
-    data.end = end;
+    let mut data = PathFindStaightData {
+        start,
+        end,
+        ..PathFindStaightData::default()
+    };
     let (start_ref, _) = query.find_nearest_poly_1(&start, &POLY_PICK_EXT, &filter).unwrap();
     let (end_ref, _) = query.find_nearest_poly_1(&end, &POLY_PICK_EXT, &filter).unwrap();
 
@@ -136,7 +138,7 @@ fn path_find_straight(nav_mesh: &DtNavMesh, start: [f32; 3], end: [f32; 3]) -> P
     data.straight_path = straight_path[0..straight_size].to_vec();
     data.straight_path_flags = straight_path_flags[0..straight_size].to_vec();
     data.straight_path_refs = straight_path_refs[0..straight_size].to_vec();
-    return data;
+    data
 }
 
 #[test]
@@ -161,12 +163,14 @@ struct PathFindSlicedData {
 }
 
 fn path_find_sliced(nav_mesh: &DtNavMesh, start: [f32; 3], end: [f32; 3]) -> PathFindSlicedData {
-    let mut query = DtNavMeshQuery::with_mesh(&nav_mesh, 2048).unwrap();
+    let mut query = DtNavMeshQuery::with_mesh(nav_mesh, 2048).unwrap();
     let filter = DtQueryFilter::default();
 
-    let mut data = PathFindSlicedData::default();
-    data.start = start;
-    data.end = end;
+    let mut data = PathFindSlicedData {
+        start,
+        end,
+        ..PathFindSlicedData::default()
+    };
     let (start_ref, _) = query.find_nearest_poly_1(&start, &POLY_PICK_EXT, &filter).unwrap();
     let (end_ref, _) = query.find_nearest_poly_1(&end, &POLY_PICK_EXT, &filter).unwrap();
 
@@ -175,14 +179,14 @@ fn path_find_sliced(nav_mesh: &DtNavMesh, start: [f32; 3], end: [f32; 3]) -> Pat
     let mut result = query.init_sliced_find_path(start_ref, end_ref, &start, &end, &filter, true);
     loop {
         match &result {
-            Err(XError::InProgress) => {
+            Err(RNError::InProgress) => {
                 result = query.update_sliced_find_path(1).map(|_| ());
             }
             Ok(_) => {
                 npolys = query.finalize_sliced_find_path(&mut polys).unwrap();
                 break;
             }
-            err @ _ => err.unwrap(),
+            err => err.unwrap(),
         }
     }
     let mut real_end = end;
@@ -208,7 +212,7 @@ fn path_find_sliced(nav_mesh: &DtNavMesh, start: [f32; 3], end: [f32; 3]) -> Pat
     data.straight_path = straight_path[0..straight_size].to_vec();
     data.straight_path_flags = straight_path_flags[0..straight_size].to_vec();
     data.straight_path_refs = straight_path_refs[0..straight_size].to_vec();
-    return data;
+    data
 }
 
 #[test]
@@ -234,12 +238,14 @@ struct RaycastData {
 }
 
 fn raycast(nav_mesh: &DtNavMesh, start: [f32; 3], end: [f32; 3]) -> RaycastData {
-    let query = DtNavMeshQuery::with_mesh(&nav_mesh, 2048).unwrap();
+    let query = DtNavMeshQuery::with_mesh(nav_mesh, 2048).unwrap();
     let filter = DtQueryFilter::default();
 
-    let mut data = RaycastData::default();
-    data.start = start;
-    data.end = end;
+    let mut data = RaycastData {
+        start,
+        end,
+        ..RaycastData::default()
+    };
     let (start_ref, _) = query.find_nearest_poly_1(&start, &POLY_PICK_EXT, &filter).unwrap();
 
     let mut path = vec![DtPolyRef::default(); MAX_POLYS];
@@ -266,7 +272,7 @@ fn raycast(nav_mesh: &DtNavMesh, start: [f32; 3], end: [f32; 3]) -> RaycastData 
     }
     data.hit_pos = hit_pos;
     data.hit_res = hit_res;
-    return data;
+    data
 }
 
 #[test]
@@ -289,18 +295,20 @@ struct DistanceToWallData {
 }
 
 fn distance_to_wall(nav_mesh: &DtNavMesh, point: [f32; 3], _: [f32; 3]) -> DistanceToWallData {
-    let query = DtNavMeshQuery::with_mesh(&nav_mesh, 2048).unwrap();
+    let query = DtNavMeshQuery::with_mesh(nav_mesh, 2048).unwrap();
     let filter = DtQueryFilter::default();
 
-    let mut data = DistanceToWallData::default();
-    data.point = point;
+    let mut data = DistanceToWallData {
+        point,
+        ..DistanceToWallData::default()
+    };
     let (point_ref, _) = query.find_nearest_poly_1(&point, &POLY_PICK_EXT, &filter).unwrap();
 
     let (hit_distance, hit_pos, hit_normal) = query.find_distance_to_wall(point_ref, &point, 100.0, &filter).unwrap();
     data.hit_distance = hit_distance;
     data.hit_pos = hit_pos;
     data.hit_normal = hit_normal;
-    return data;
+    data
 }
 
 #[test]
@@ -324,12 +332,14 @@ struct FindPolysInCircleData {
 }
 
 fn find_polys_in_circle(nav_mesh: &DtNavMesh, start: [f32; 3], end: [f32; 3]) -> FindPolysInCircleData {
-    let query = DtNavMeshQuery::with_mesh(&nav_mesh, 2048).unwrap();
+    let query = DtNavMeshQuery::with_mesh(nav_mesh, 2048).unwrap();
     let filter = DtQueryFilter::default();
 
-    let mut data = FindPolysInCircleData::default();
-    data.start = start;
-    data.end = end;
+    let mut data = FindPolysInCircleData {
+        start,
+        end,
+        ..FindPolysInCircleData::default()
+    };
     let (start_ref, _) = query.find_nearest_poly_1(&start, &POLY_PICK_EXT, &filter).unwrap();
 
     let dx = end[0] - start[0];
@@ -353,7 +363,7 @@ fn find_polys_in_circle(nav_mesh: &DtNavMesh, start: [f32; 3], end: [f32; 3]) ->
     data.polys = polys[0..count].to_vec();
     data.parents = parents[0..count].to_vec();
     data.costs = costs[0..count].to_vec();
-    return data;
+    data
 }
 
 #[test]
@@ -380,12 +390,14 @@ struct FindPolysInShapeData {
 fn find_polys_in_shape(nav_mesh: &DtNavMesh, start: [f32; 3], end: [f32; 3]) -> FindPolysInShapeData {
     const ANGLE_HEIGHT: f32 = 2.0;
 
-    let query = DtNavMeshQuery::with_mesh(&nav_mesh, 2048).unwrap();
+    let query = DtNavMeshQuery::with_mesh(nav_mesh, 2048).unwrap();
     let filter = DtQueryFilter::default();
 
-    let mut data = FindPolysInShapeData::default();
-    data.start = start;
-    data.end = end;
+    let mut data = FindPolysInShapeData {
+        start,
+        end,
+        ..FindPolysInShapeData::default()
+    };
     let (start_ref, _) = query.find_nearest_poly_1(&start, &POLY_PICK_EXT, &filter).unwrap();
 
     let nx = (end[2] - start[2]) * 0.25;
@@ -414,7 +426,7 @@ fn find_polys_in_shape(nav_mesh: &DtNavMesh, start: [f32; 3], end: [f32; 3]) -> 
     data.polys = polys[0..count].to_vec();
     data.parents = parents[0..count].to_vec();
     data.costs = costs[0..count].to_vec();
-    return data;
+    data
 }
 
 #[test]
@@ -439,11 +451,13 @@ struct FindLocalNeighbourhoodData {
 fn find_local_neighbourhood(nav_mesh: &DtNavMesh, point: [f32; 3], _: [f32; 3]) -> FindLocalNeighbourhoodData {
     const RADIUS: f32 = 12.0;
 
-    let query = DtNavMeshQuery::with_mesh(&nav_mesh, 2048).unwrap();
+    let query = DtNavMeshQuery::with_mesh(nav_mesh, 2048).unwrap();
     let filter = DtQueryFilter::default();
 
-    let mut data = FindLocalNeighbourhoodData::default();
-    data.point = point;
+    let mut data = FindLocalNeighbourhoodData {
+        point,
+        ..FindLocalNeighbourhoodData::default()
+    };
     let (point_ref, _) = query.find_nearest_poly_1(&point, &POLY_PICK_EXT, &filter).unwrap();
 
     let mut polys = vec![DtPolyRef::default(); MAX_POLYS];
@@ -453,7 +467,7 @@ fn find_local_neighbourhood(nav_mesh: &DtNavMesh, point: [f32; 3], _: [f32; 3]) 
         .unwrap();
     data.polys = polys[0..count].to_vec();
     data.parents = parents[0..count].to_vec();
-    return data;
+    data
 }
 
 #[test]
@@ -480,11 +494,13 @@ struct PathFindFollowData {
 }
 
 fn path_find_follow(nav_mesh: &DtNavMesh, start: [f32; 3], end: [f32; 3]) -> PathFindFollowData {
-    let mut data = PathFindFollowData::default();
-    data.start = start;
-    data.end = end;
+    let mut data = PathFindFollowData {
+        start,
+        end,
+        ..PathFindFollowData::default()
+    };
 
-    let query = DtNavMeshQuery::with_mesh(&nav_mesh, 2048).unwrap();
+    let query = DtNavMeshQuery::with_mesh(nav_mesh, 2048).unwrap();
     let filter = DtQueryFilter::default();
 
     let (start_ref, _) = query.find_nearest_poly_1(&start, &POLY_PICK_EXT, &filter).unwrap();
@@ -496,7 +512,7 @@ fn path_find_follow(nav_mesh: &DtNavMesh, start: [f32; 3], end: [f32; 3]) -> Pat
         .unwrap();
     data.polys = polys[0..npolys].to_vec();
 
-    if npolys <= 0 {
+    if npolys == 0 {
         return data;
     }
 
@@ -509,7 +525,7 @@ fn path_find_follow(nav_mesh: &DtNavMesh, start: [f32; 3], end: [f32; 3]) -> Pat
     smooth_count += 1;
 
     while npolys > 0 && smooth_count < MAX_SMOOTH {
-        let steer = match get_steer_target(&query, iter_pos, target_pos, SLOP, &mut polys[0..npolys]) {
+        let steer = match get_steer_target(&query, iter_pos, target_pos, SLOP, &polys[0..npolys]) {
             Some(steer) => steer,
             None => break,
         };
@@ -534,7 +550,7 @@ fn path_find_follow(nav_mesh: &DtNavMesh, start: [f32; 3], end: [f32; 3]) -> Pat
         data.move_along_surface.push((result, nvisited));
 
         npolys = merge_corridor_start_moved(&mut polys, npolys, &visited[0..nvisited]);
-        npolys = fixup_shortcuts(&nav_mesh, &mut polys[0..npolys]);
+        npolys = fixup_shortcuts(nav_mesh, &mut polys[0..npolys]);
         data.fixup_shortcuts.push(npolys);
 
         result[1] = query.get_poly_height(polys[0], &result).unwrap_or(result[1]);
@@ -582,7 +598,7 @@ fn path_find_follow(nav_mesh: &DtNavMesh, start: [f32; 3], end: [f32; 3]) -> Pat
     }
 
     data.smooth_path = smooth_path[0..smooth_count].to_vec();
-    return data;
+    data
 }
 
 #[derive(Debug, Default, Clone, PartialEq, Archive, Serialize, Deserialize)]
@@ -641,14 +657,14 @@ fn get_steer_target(
     out.steer_pos_flag = steer_path_flags[ns];
     out.steer_pos_ref = steer_path_polys[ns];
 
-    return Some(out);
+    Some(out)
 }
 
 fn in_range(v1: &[f32; 3], v2: &[f32; 3], r: f32, h: f32) -> bool {
     let dx = v2[0] - v1[0];
     let dy = v2[1] - v1[1];
     let dz = v2[2] - v1[2];
-    return (dx * dx + dz * dz) < r * r && dy.abs() < h;
+    (dx * dx + dz * dz) < r * r && dy.abs() < h
 }
 
 fn fixup_shortcuts(nav_mesh: &DtNavMesh, path: &mut [DtPolyRef]) -> usize {
@@ -670,11 +686,9 @@ fn fixup_shortcuts(nav_mesh: &DtNavMesh, path: &mut [DtPolyRef]) -> usize {
     let mut k = poly.first_link;
     while k != DT_NULL_LINK {
         let link = &tile.links()[k as usize];
-        if !link.re.is_null() {
-            if nneis < MAX_NEIS {
-                neis[nneis] = link.re;
-                nneis += 1;
-            }
+        if !link.re.is_null() && nneis < MAX_NEIS {
+            neis[nneis] = link.re;
+            nneis += 1;
         }
         k = link.next;
     }
@@ -682,8 +696,8 @@ fn fixup_shortcuts(nav_mesh: &DtNavMesh, path: &mut [DtPolyRef]) -> usize {
     let mut cut = 0;
     let mut i = usize::min(MAX_LOOK_AHEAD, path.len()) - 1;
     while i > 1 && cut == 0 {
-        for j in 0..nneis {
-            if path[i] == neis[j] {
+        for nei in neis.iter().take(nneis) {
+            if path[i] == *nei {
                 cut = i;
                 break;
             }
@@ -700,5 +714,5 @@ fn fixup_shortcuts(nav_mesh: &DtNavMesh, path: &mut [DtPolyRef]) -> usize {
         }
     }
 
-    return npath;
+    npath
 }

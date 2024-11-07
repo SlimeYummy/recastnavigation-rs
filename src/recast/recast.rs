@@ -374,8 +374,9 @@ impl Debug for RcContext {
 }
 
 impl RcContext {
+    #[inline]
     pub fn new(state: bool) -> RcContext {
-        return RcContext(ffi::rcNewContext(state));
+        RcContext(ffi::rcNewContext(state))
     }
 
     #[inline]
@@ -410,7 +411,7 @@ impl RcContext {
 
     #[inline]
     pub fn get_accumulated_time(&self, label: RcTimerLabel) -> i32 {
-        return self.0.getAccumulatedTime(label);
+        self.0.getAccumulatedTime(label)
     }
 }
 
@@ -524,7 +525,7 @@ const RC_SPAN_AREA_MASK: u32 = !(RC_SPAN_SMIN_MASK | RC_SPAN_SMAX_MASK);
 impl RcSpan {
     #[inline]
     pub fn smin(&self) -> u32 {
-        return self.bits & RC_SPAN_SMIN_MASK;
+        self.bits & RC_SPAN_SMIN_MASK
     }
 
     #[inline]
@@ -534,7 +535,7 @@ impl RcSpan {
 
     #[inline]
     pub fn smax(&self) -> u32 {
-        return (self.bits & RC_SPAN_SMAX_MASK) >> RC_SPAN_SMAX_OFF;
+        (self.bits & RC_SPAN_SMAX_MASK) >> RC_SPAN_SMAX_OFF
     }
 
     #[inline]
@@ -544,7 +545,7 @@ impl RcSpan {
 
     #[inline]
     pub fn area(&self) -> u32 {
-        return self.bits >> RC_SPAN_AREA_OFF;
+        self.bits >> RC_SPAN_AREA_OFF
     }
 
     #[inline]
@@ -555,9 +556,9 @@ impl RcSpan {
     #[inline]
     pub fn next(&self) -> Option<&RcSpan> {
         if self.next.is_null() {
-            return None;
+            None
         } else {
-            return Some(unsafe { &*self.next });
+            Some(unsafe { &*self.next })
         }
     }
 }
@@ -630,12 +631,14 @@ pub struct RcHeightfield(*mut CxxRcHeightfield);
 impl Deref for RcHeightfield {
     type Target = CxxRcHeightfield;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         return self.inner();
     }
 }
 
 impl DerefMut for RcHeightfield {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         return self.inner_mut().get_mut();
     }
@@ -647,40 +650,46 @@ impl Drop for RcHeightfield {
     }
 }
 
+impl Default for RcHeightfield {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RcHeightfield {
     #[inline]
     pub fn new() -> RcHeightfield {
-        return RcHeightfield(unsafe { ffi::rcAllocHeightfield() });
+        RcHeightfield(unsafe { ffi::rcAllocHeightfield() })
     }
 
     #[inline]
     fn inner(&self) -> &ffi::rcHeightfield {
-        return unsafe { &*self.0 };
+        unsafe { &*self.0 }
     }
 
     #[inline]
     fn inner_mut(&mut self) -> Pin<&mut ffi::rcHeightfield> {
-        return unsafe { Pin::new_unchecked(&mut *self.0) };
+        unsafe { Pin::new_unchecked(&mut *self.0) }
     }
 
     #[inline]
     pub fn as_ptr(&self) -> *const ffi::rcHeightfield {
-        return self.0;
+        self.0
     }
 
     #[inline]
     pub fn as_mut_ptr(&mut self) -> *mut ffi::rcHeightfield {
-        return self.0;
+        self.0
     }
 
     #[inline]
     pub fn width(&self) -> i32 {
-        return self.width;
+        self.width
     }
 
     #[inline]
     pub fn height(&self) -> i32 {
-        return self.height;
+        self.height
     }
 
     #[inline]
@@ -692,7 +701,7 @@ impl RcHeightfield {
         if span.is_null() {
             return None;
         }
-        return Some(unsafe { &*span });
+        Some(unsafe { &*span })
     }
 
     #[inline]
@@ -704,7 +713,7 @@ impl RcHeightfield {
         if span.is_null() {
             return None;
         }
-        return Some(unsafe { &mut *span });
+        Some(unsafe { &mut *span })
     }
 }
 
@@ -738,7 +747,7 @@ const RC_COMPACT_CELL_COUNT_MASK: u32 = 0xFF;
 impl RcCompactCell {
     #[inline]
     pub fn index(&self) -> u32 {
-        return self.bits & RC_COMPACT_CELL_INDEX_MASK;
+        self.bits & RC_COMPACT_CELL_INDEX_MASK
     }
 
     #[inline]
@@ -748,7 +757,7 @@ impl RcCompactCell {
 
     #[inline]
     pub fn count(&self) -> u32 {
-        return self.bits >> RC_COMPACT_CELL_COUNT_OFF;
+        self.bits >> RC_COMPACT_CELL_COUNT_OFF
     }
 
     #[inline]
@@ -793,7 +802,7 @@ const RC_COMPACT_SPAN_H_MASK: u32 = 0xFF;
 impl RcCompactSpan {
     #[inline]
     pub fn con(&self) -> u32 {
-        return self.bits & RC_COMPACT_SPAN_CON_MASK;
+        self.bits & RC_COMPACT_SPAN_CON_MASK
     }
 
     #[inline]
@@ -803,7 +812,7 @@ impl RcCompactSpan {
 
     #[inline]
     pub fn h(&self) -> u32 {
-        return self.bits >> RC_COMPACT_SPAN_H_OFF;
+        self.bits >> RC_COMPACT_SPAN_H_OFF
     }
 
     #[inline]
@@ -865,12 +874,14 @@ pub struct RcCompactHeightfield(*mut ffi::rcCompactHeightfield);
 impl Deref for RcCompactHeightfield {
     type Target = CxxRcCompactHeightfield;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         return self.inner();
     }
 }
 
 impl DerefMut for RcCompactHeightfield {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         return self.inner_mut().get_mut();
     }
@@ -882,45 +893,51 @@ impl Drop for RcCompactHeightfield {
     }
 }
 
+impl Default for RcCompactHeightfield {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RcCompactHeightfield {
     #[inline]
     pub fn new() -> RcCompactHeightfield {
-        return RcCompactHeightfield(unsafe { ffi::rcAllocCompactHeightfield() });
+        RcCompactHeightfield(unsafe { ffi::rcAllocCompactHeightfield() })
     }
 
     #[inline]
     fn inner(&self) -> &ffi::rcCompactHeightfield {
-        return unsafe { &*self.0 };
+        unsafe { &*self.0 }
     }
 
     #[inline]
     fn inner_mut(&mut self) -> Pin<&mut ffi::rcCompactHeightfield> {
-        return unsafe { Pin::new_unchecked(&mut *self.0) };
+        unsafe { Pin::new_unchecked(&mut *self.0) }
     }
 
     #[inline]
     pub fn as_ptr(&self) -> *const ffi::rcCompactHeightfield {
-        return self.0;
+        self.0
     }
 
     #[inline]
     pub fn as_mut_ptr(&mut self) -> *mut ffi::rcCompactHeightfield {
-        return self.0;
+        self.0
     }
 
     #[inline]
     pub fn width(&self) -> i32 {
-        return self.width;
+        self.width
     }
 
     #[inline]
     pub fn height(&self) -> i32 {
-        return self.height;
+        self.height
     }
 
     #[inline]
     pub fn span_count(&self) -> usize {
-        return self.span_count as usize;
+        self.span_count as usize
     }
 
     #[inline]
@@ -1018,12 +1035,12 @@ unsafe impl ExternType for RcHeightfieldLayer {
 impl RcHeightfieldLayer {
     #[inline]
     pub fn width(&self) -> i32 {
-        return self.width;
+        self.width
     }
 
     #[inline]
     pub fn height(&self) -> i32 {
-        return self.height;
+        self.height
     }
 
     #[inline]
@@ -1084,12 +1101,14 @@ pub struct RcHeightfieldLayerSet(*mut ffi::rcHeightfieldLayerSet);
 impl Deref for RcHeightfieldLayerSet {
     type Target = CxxRcHeightfieldLayerSet;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         return self.inner();
     }
 }
 
 impl DerefMut for RcHeightfieldLayerSet {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         return self.inner_mut().get_mut();
     }
@@ -1101,30 +1120,36 @@ impl Drop for RcHeightfieldLayerSet {
     }
 }
 
+impl Default for RcHeightfieldLayerSet {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RcHeightfieldLayerSet {
     #[inline]
     pub fn new() -> RcHeightfieldLayerSet {
-        return RcHeightfieldLayerSet(unsafe { ffi::rcAllocHeightfieldLayerSet() });
+        RcHeightfieldLayerSet(unsafe { ffi::rcAllocHeightfieldLayerSet() })
     }
 
     #[inline]
     fn inner(&self) -> &ffi::rcHeightfieldLayerSet {
-        return unsafe { &*self.0 };
+        unsafe { &*self.0 }
     }
 
     #[inline]
     fn inner_mut(&mut self) -> Pin<&mut ffi::rcHeightfieldLayerSet> {
-        return unsafe { Pin::new_unchecked(&mut *self.0) };
+        unsafe { Pin::new_unchecked(&mut *self.0) }
     }
 
     #[inline]
     pub fn as_ptr(&self) -> *const ffi::rcHeightfieldLayerSet {
-        return self.0;
+        self.0
     }
 
     #[inline]
     pub fn as_mut_ptr(&mut self) -> *mut ffi::rcHeightfieldLayerSet {
-        return self.0;
+        self.0
     }
 
     #[inline]
@@ -1178,7 +1203,7 @@ unsafe impl ExternType for RcContour {
 impl RcContour {
     #[inline]
     pub fn nverts(&self) -> usize {
-        return self.nverts as usize;
+        self.nverts as usize
     }
 
     #[inline]
@@ -1193,7 +1218,7 @@ impl RcContour {
 
     #[inline]
     pub fn nrverts(&self) -> usize {
-        return self.nrverts as usize;
+        self.nrverts as usize
     }
 
     #[inline]
@@ -1242,12 +1267,14 @@ pub struct RcContourSet(*mut ffi::rcContourSet);
 impl Deref for RcContourSet {
     type Target = CxxRcContourSet;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         return self.inner();
     }
 }
 
 impl DerefMut for RcContourSet {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         return self.inner_mut().get_mut();
     }
@@ -1259,30 +1286,36 @@ impl Drop for RcContourSet {
     }
 }
 
+impl Default for RcContourSet {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RcContourSet {
     #[inline]
     pub fn new() -> RcContourSet {
-        return RcContourSet(unsafe { ffi::rcAllocContourSet() });
+        RcContourSet(unsafe { ffi::rcAllocContourSet() })
     }
 
     #[inline]
     fn inner(&self) -> &ffi::rcContourSet {
-        return unsafe { &*self.0 };
+        unsafe { &*self.0 }
     }
 
     #[inline]
     fn inner_mut(&mut self) -> Pin<&mut ffi::rcContourSet> {
-        return unsafe { Pin::new_unchecked(&mut *self.0) };
+        unsafe { Pin::new_unchecked(&mut *self.0) }
     }
 
     #[inline]
     pub fn as_ptr(&self) -> *const ffi::rcContourSet {
-        return self.0;
+        self.0
     }
 
     #[inline]
     pub fn as_mut_ptr(&mut self) -> *mut ffi::rcContourSet {
-        return self.0;
+        self.0
     }
 
     #[inline]
@@ -1347,12 +1380,14 @@ pub struct RcPolyMesh(*mut ffi::rcPolyMesh);
 impl Deref for RcPolyMesh {
     type Target = CxxRcPolyMesh;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         return self.inner();
     }
 }
 
 impl DerefMut for RcPolyMesh {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         return self.inner_mut().get_mut();
     }
@@ -1364,30 +1399,36 @@ impl Drop for RcPolyMesh {
     }
 }
 
+impl Default for RcPolyMesh {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RcPolyMesh {
     #[inline]
     pub fn new() -> RcPolyMesh {
-        return RcPolyMesh(unsafe { ffi::rcAllocPolyMesh() });
+        RcPolyMesh(unsafe { ffi::rcAllocPolyMesh() })
     }
 
     #[inline]
     fn inner(&self) -> &ffi::rcPolyMesh {
-        return unsafe { &*self.0 };
+        unsafe { &*self.0 }
     }
 
     #[inline]
     fn inner_mut(&mut self) -> Pin<&mut ffi::rcPolyMesh> {
-        return unsafe { Pin::new_unchecked(&mut *self.0) };
+        unsafe { Pin::new_unchecked(&mut *self.0) }
     }
 
     #[inline]
     pub fn as_ptr(&self) -> *const ffi::rcPolyMesh {
-        return self.0;
+        self.0
     }
 
     #[inline]
     pub fn as_mut_ptr(&mut self) -> *mut ffi::rcPolyMesh {
-        return self.0;
+        self.0
     }
 
     #[inline]
@@ -1442,22 +1483,22 @@ impl RcPolyMesh {
 
     #[inline]
     pub fn nverts(&self) -> usize {
-        return self.nverts as usize;
+        self.nverts as usize
     }
 
     #[inline]
     pub fn npolys(&self) -> usize {
-        return self.npolys as usize;
+        self.npolys as usize
     }
 
     #[inline]
     pub fn maxpolys(&self) -> usize {
-        return self.maxpolys as usize;
+        self.maxpolys as usize
     }
 
     #[inline]
     pub fn nvp(&self) -> usize {
-        return self.nvp as usize;
+        self.nvp as usize
     }
 }
 
@@ -1498,12 +1539,14 @@ pub struct RcPolyMeshDetail(*mut ffi::rcPolyMeshDetail);
 impl Deref for RcPolyMeshDetail {
     type Target = CxxRcPolyMeshDetail;
 
+    #[inline]
     fn deref(&self) -> &Self::Target {
         return self.inner();
     }
 }
 
 impl DerefMut for RcPolyMeshDetail {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         return self.inner_mut().get_mut();
     }
@@ -1515,30 +1558,36 @@ impl Drop for RcPolyMeshDetail {
     }
 }
 
+impl Default for RcPolyMeshDetail {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RcPolyMeshDetail {
     #[inline]
     pub fn new() -> RcPolyMeshDetail {
-        return RcPolyMeshDetail(unsafe { ffi::rcAllocPolyMeshDetail() });
+        RcPolyMeshDetail(unsafe { ffi::rcAllocPolyMeshDetail() })
     }
 
     #[inline]
     fn inner(&self) -> &ffi::rcPolyMeshDetail {
-        return unsafe { &*self.0 };
+        unsafe { &*self.0 }
     }
 
     #[inline]
     fn inner_mut(&mut self) -> Pin<&mut ffi::rcPolyMeshDetail> {
-        return unsafe { Pin::new_unchecked(&mut *self.0) };
+        unsafe { Pin::new_unchecked(&mut *self.0) }
     }
 
     #[inline]
     pub fn as_ptr(&self) -> *const ffi::rcPolyMeshDetail {
-        return self.0;
+        self.0
     }
 
     #[inline]
     pub fn as_mut_ptr(&mut self) -> *mut ffi::rcPolyMeshDetail {
-        return self.0;
+        self.0
     }
 
     #[inline]
@@ -1573,17 +1622,17 @@ impl RcPolyMeshDetail {
 
     #[inline]
     pub fn nmeshes(&self) -> usize {
-        return self.nmeshes as usize;
+        self.nmeshes as usize
     }
 
     #[inline]
     pub fn nverts(&self) -> usize {
-        return self.nverts as usize;
+        self.nverts as usize
     }
 
     #[inline]
     pub fn ntris(&self) -> usize {
-        return self.ntris as usize;
+        self.ntris as usize
     }
 }
 
@@ -1597,6 +1646,7 @@ impl Debug for RcPolyMeshDetail {
 // functions
 //
 
+#[inline]
 pub fn rc_calc_bounds(verts: &[[f32; 3]]) -> ([f32; 3], [f32; 3]) {
     let mut min_bounds = [0.0; 3];
     let mut max_bounds = [0.0; 3];
@@ -1608,9 +1658,10 @@ pub fn rc_calc_bounds(verts: &[[f32; 3]]) -> ([f32; 3], [f32; 3]) {
             max_bounds.as_mut_ptr(),
         );
     }
-    return (min_bounds, max_bounds);
+    (min_bounds, max_bounds)
 }
 
+#[inline]
 pub fn rc_calc_grid_size(min_bounds: &[f32; 3], max_bounds: &[f32; 3], cell_size: f32) -> (i32, i32) {
     let mut size_x = 0;
     let mut size_z = 0;
@@ -1623,9 +1674,10 @@ pub fn rc_calc_grid_size(min_bounds: &[f32; 3], max_bounds: &[f32; 3], cell_size
             &mut size_z,
         );
     }
-    return (size_x, size_z);
+    (size_x, size_z)
 }
 
+#[inline]
 pub fn rc_create_heightfield(
     context: &mut RcContext,
     heightfield: &mut RcHeightfield,
@@ -1648,9 +1700,14 @@ pub fn rc_create_heightfield(
             cell_height,
         )
     };
-    return if res { Ok(()) } else { Err(RNError::Failed) };
+    if res {
+        Ok(())
+    } else {
+        Err(RNError::Failed)
+    }
 }
 
+#[inline]
 pub fn rc_mark_walkable_triangles(
     context: &mut RcContext,
     walkable_slope_angle: f32,
@@ -1672,9 +1729,10 @@ pub fn rc_mark_walkable_triangles(
             tri_area_ids.as_mut_ptr(),
         );
     }
-    return Ok(());
+    Ok(())
 }
 
+#[inline]
 pub fn rc_clear_unwalkable_triangles(
     context: &mut RcContext,
     walkable_slope_angle: f32,
@@ -1696,9 +1754,10 @@ pub fn rc_clear_unwalkable_triangles(
             tri_area_ids.as_mut_ptr(),
         );
     }
-    return Ok(());
+    Ok(())
 }
 
+#[inline]
 pub fn rc_add_span(
     context: &mut RcContext,
     heightfield: &mut RcHeightfield,
@@ -1721,9 +1780,14 @@ pub fn rc_add_span(
             flag_merge_threshold,
         )
     };
-    return if res { Ok(()) } else { Err(RNError::Failed) };
+    if res {
+        Ok(())
+    } else {
+        Err(RNError::Failed)
+    }
 }
 
+#[inline]
 pub fn rc_rasterize_triangle(
     context: &mut RcContext,
     v0: &[f32; 3],
@@ -1744,9 +1808,14 @@ pub fn rc_rasterize_triangle(
             flag_merge_threshold,
         )
     };
-    return if res { Ok(()) } else { Err(RNError::Failed) };
+    if res {
+        Ok(())
+    } else {
+        Err(RNError::Failed)
+    }
 }
 
+#[inline]
 pub fn rc_rasterize_triangles_1(
     context: &mut RcContext,
     verts: &[[f32; 3]],
@@ -1770,9 +1839,10 @@ pub fn rc_rasterize_triangles_1(
             flag_merge_threshold,
         )
     };
-    return Ok(res);
+    Ok(res)
 }
 
+#[inline]
 pub fn rc_rasterize_triangles_2(
     context: &mut RcContext,
     verts: &[[f32; 3]],
@@ -1796,9 +1866,10 @@ pub fn rc_rasterize_triangles_2(
             flag_merge_threshold,
         )
     };
-    return Ok(res);
+    Ok(res)
 }
 
+#[inline]
 pub fn rc_rasterize_triangles_3(
     context: &mut RcContext,
     verts: &[[f32; 3]],
@@ -1819,9 +1890,10 @@ pub fn rc_rasterize_triangles_3(
             flag_merge_threshold,
         )
     };
-    return Ok(res);
+    Ok(res)
 }
 
+#[inline]
 pub fn rc_filter_low_hanging_walkable_obstacles(
     context: &mut RcContext,
     walkable_climb: i32,
@@ -1836,6 +1908,7 @@ pub fn rc_filter_low_hanging_walkable_obstacles(
     }
 }
 
+#[inline]
 pub fn rc_filter_ledge_spans(
     context: &mut RcContext,
     walkable_height: i32,
@@ -1852,6 +1925,7 @@ pub fn rc_filter_ledge_spans(
     }
 }
 
+#[inline]
 pub fn rc_filter_walkable_low_height_spans(
     context: &mut RcContext,
     walkable_height: i32,
@@ -1866,12 +1940,14 @@ pub fn rc_filter_walkable_low_height_spans(
     }
 }
 
+#[inline]
 pub fn rc_get_height_field_span_count(context: &mut RcContext, heightfield: &RcHeightfield) -> i32 {
     unsafe {
         return ffi::rcGetHeightFieldSpanCount(context.0.pin_mut().get_unchecked_mut() as *mut _, heightfield.inner());
     }
 }
 
+#[inline]
 pub fn rc_build_compact_heightfield(
     context: &mut RcContext,
     walkable_height: i32,
@@ -1888,9 +1964,14 @@ pub fn rc_build_compact_heightfield(
             compact_heightfield.inner_mut(),
         )
     };
-    return if res { Ok(()) } else { Err(RNError::Failed) };
+    if res {
+        Ok(())
+    } else {
+        Err(RNError::Failed)
+    }
 }
 
+#[inline]
 pub fn rc_erode_walkable_area(
     context: &mut RcContext,
     erosion_radius: i32,
@@ -1903,9 +1984,14 @@ pub fn rc_erode_walkable_area(
             compact_heightfield.inner_mut(),
         )
     };
-    return if res { Ok(()) } else { Err(RNError::Failed) };
+    if res {
+        Ok(())
+    } else {
+        Err(RNError::Failed)
+    }
 }
 
+#[inline]
 pub fn rc_median_filter_walkable_area(
     context: &mut RcContext,
     compact_heightfield: &mut RcCompactHeightfield,
@@ -1916,9 +2002,14 @@ pub fn rc_median_filter_walkable_area(
             compact_heightfield.inner_mut(),
         )
     };
-    return if res { Ok(()) } else { Err(RNError::Failed) };
+    if res {
+        Ok(())
+    } else {
+        Err(RNError::Failed)
+    }
 }
 
+#[inline]
 pub fn rc_mark_box_area(
     context: &mut RcContext,
     box_min_bounds: &[f32; 3],
@@ -1937,6 +2028,7 @@ pub fn rc_mark_box_area(
     }
 }
 
+#[inline]
 pub fn rc_offset_poly(
     verts: &[[f32; 3]],
     num_verts: i32,
@@ -1945,16 +2037,17 @@ pub fn rc_offset_poly(
     max_out_verts: i32,
 ) -> i32 {
     unsafe {
-        return ffi::rcOffsetPoly(
+        ffi::rcOffsetPoly(
             verts.as_ptr() as *const f32,
             num_verts,
             offset,
             out_verts.as_mut_ptr() as *mut f32,
             max_out_verts,
-        );
+        )
     }
 }
 
+#[inline]
 pub fn rc_mark_convex_poly_area(
     context: &mut RcContext,
     verts: &[[f32; 3]],
@@ -1976,6 +2069,7 @@ pub fn rc_mark_convex_poly_area(
     }
 }
 
+#[inline]
 pub fn rc_mark_cylinder_area(
     context: &mut RcContext,
     position: &[f32; 3],
@@ -1996,11 +2090,17 @@ pub fn rc_mark_cylinder_area(
     }
 }
 
+#[inline]
 pub fn rc_build_distance_field(context: &mut RcContext, chf: &mut RcCompactHeightfield) -> RNResult<()> {
     let res = unsafe { ffi::rcBuildDistanceField(context.0.pin_mut().get_unchecked_mut() as *mut _, chf.inner_mut()) };
-    return if res { Ok(()) } else { Err(RNError::Failed) };
+    if res {
+        Ok(())
+    } else {
+        Err(RNError::Failed)
+    }
 }
 
+#[inline]
 pub fn rc_build_regions(
     context: &mut RcContext,
     chf: &mut RcCompactHeightfield,
@@ -2017,9 +2117,14 @@ pub fn rc_build_regions(
             merge_region_area,
         )
     };
-    return if res { Ok(()) } else { Err(RNError::Failed) };
+    if res {
+        Ok(())
+    } else {
+        Err(RNError::Failed)
+    }
 }
 
+#[inline]
 pub fn rc_build_layer_regions(
     context: &mut RcContext,
     chf: &mut RcCompactHeightfield,
@@ -2034,9 +2139,14 @@ pub fn rc_build_layer_regions(
             min_region_area,
         )
     };
-    return if res { Ok(()) } else { Err(RNError::Failed) };
+    if res {
+        Ok(())
+    } else {
+        Err(RNError::Failed)
+    }
 }
 
+#[inline]
 pub fn rc_build_regions_monotone(
     context: &mut RcContext,
     chf: &mut RcCompactHeightfield,
@@ -2053,9 +2163,14 @@ pub fn rc_build_regions_monotone(
             merge_region_area,
         )
     };
-    return if res { Ok(()) } else { Err(RNError::Failed) };
+    if res {
+        Ok(())
+    } else {
+        Err(RNError::Failed)
+    }
 }
 
+#[inline]
 pub fn rc_build_heightfield_layers(
     context: &mut RcContext,
     chf: &RcCompactHeightfield,
@@ -2072,9 +2187,14 @@ pub fn rc_build_heightfield_layers(
             lset.inner_mut(),
         )
     };
-    return if res { Ok(()) } else { Err(RNError::Failed) };
+    if res {
+        Ok(())
+    } else {
+        Err(RNError::Failed)
+    }
 }
 
+#[inline]
 pub fn rc_build_contours(
     context: &mut RcContext,
     chf: &RcCompactHeightfield,
@@ -2093,9 +2213,14 @@ pub fn rc_build_contours(
             build_flags.repr,
         )
     };
-    return if res { Ok(()) } else { Err(RNError::Failed) };
+    if res {
+        Ok(())
+    } else {
+        Err(RNError::Failed)
+    }
 }
 
+#[inline]
 pub fn rc_build_poly_mesh(
     context: &mut RcContext,
     cset: &RcContourSet,
@@ -2110,9 +2235,14 @@ pub fn rc_build_poly_mesh(
             mesh.inner_mut(),
         )
     };
-    return if res { Ok(()) } else { Err(RNError::Failed) };
+    if res {
+        Ok(())
+    } else {
+        Err(RNError::Failed)
+    }
 }
 
+#[inline]
 pub fn rc_merge_poly_meshes(context: &mut RcContext, meshes: &[&RcPolyMesh], mesh: &mut RcPolyMesh) -> bool {
     let tmp_meshes: Vec<_> = meshes.iter().map(|m| m.as_ptr()).collect();
     unsafe {
@@ -2125,6 +2255,7 @@ pub fn rc_merge_poly_meshes(context: &mut RcContext, meshes: &[&RcPolyMesh], mes
     }
 }
 
+#[inline]
 pub fn rc_build_poly_mesh_detail(
     context: &mut RcContext,
     mesh: &RcPolyMesh,
@@ -2143,9 +2274,14 @@ pub fn rc_build_poly_mesh_detail(
             dmesh.inner_mut(),
         )
     };
-    return if res { Ok(()) } else { Err(RNError::Failed) };
+    if res {
+        Ok(())
+    } else {
+        Err(RNError::Failed)
+    }
 }
 
+#[inline]
 pub fn rc_copy_poly_mesh(context: &mut RcContext, src: &RcPolyMesh, dst: &mut RcPolyMesh) -> RNResult<()> {
     let res = unsafe {
         ffi::rcCopyPolyMesh(
@@ -2154,9 +2290,14 @@ pub fn rc_copy_poly_mesh(context: &mut RcContext, src: &RcPolyMesh, dst: &mut Rc
             dst.inner_mut(),
         )
     };
-    return if res { Ok(()) } else { Err(RNError::Failed) };
+    if res {
+        Ok(())
+    } else {
+        Err(RNError::Failed)
+    }
 }
 
+#[inline]
 pub fn rc_merge_poly_mesh_details(
     context: &mut RcContext,
     meshes: &[&RcPolyMeshDetail],

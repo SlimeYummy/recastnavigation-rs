@@ -316,20 +316,23 @@ unsafe impl ExternType for DtQueryFilter {
 }
 
 impl Default for DtQueryFilter {
+    #[inline]
     fn default() -> DtQueryFilter {
-        return DtQueryFilter {
+        DtQueryFilter {
             area_cost: [1.0; DT_MAX_AREAS],
             include_flags: 0xffff,
             exclude_flags: 0,
-        };
+        }
     }
 }
 
 impl DtQueryFilter {
+    #[inline]
     pub fn pass_filter(&self, re: DtPolyRef, tile: DtMeshTile, poly: &DtPoly) -> bool {
-        return unsafe { ffi::dtqf_passFilter(self, re, tile.as_ptr(), poly) };
+        unsafe { ffi::dtqf_passFilter(self, re, tile.as_ptr(), poly) }
     }
 
+    #[inline]
     pub fn get_cost(
         &self,
         pa: &[f32; 3],
@@ -344,7 +347,7 @@ impl DtQueryFilter {
         next_tile: &DtMeshTile,
         next_poly: &DtPoly,
     ) -> f32 {
-        return unsafe {
+        unsafe {
             ffi::dtqf_getCost(
                 self,
                 pa.as_ptr(),
@@ -359,7 +362,7 @@ impl DtQueryFilter {
                 next_tile.as_ptr(),
                 next_poly as *const _,
             )
-        };
+        }
     }
 }
 
@@ -387,8 +390,9 @@ unsafe impl ExternType for DtRaycastHit {
 }
 
 impl Default for DtRaycastHit {
+    #[inline]
     fn default() -> DtRaycastHit {
-        return DtRaycastHit {
+        DtRaycastHit {
             t: 0.0,
             hit_normal: [0.0; 3],
             hit_edge_index: 0,
@@ -396,21 +400,24 @@ impl Default for DtRaycastHit {
             path_count: 0,
             max_path: 0,
             path_cost: 0.0,
-        };
+        }
     }
 }
 
 impl DtRaycastHit {
+    #[inline]
     pub fn path(&self) -> &[DtPolyRef] {
         return unsafe { std::slice::from_raw_parts(self.path, self.path_count as usize) };
     }
 
+    #[inline]
     pub fn path_mut(&mut self) -> &mut [DtPolyRef] {
         return unsafe { std::slice::from_raw_parts_mut(self.path, self.path_count as usize) };
     }
 
+    #[inline]
     pub fn path_count(&self) -> i32 {
-        return self.path_count;
+        self.path_count
     }
 }
 
@@ -423,35 +430,48 @@ impl Drop for DtNavMeshQuery {
     }
 }
 
+impl Default for DtNavMeshQuery {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DtNavMeshQuery {
+    #[inline]
     pub fn new() -> DtNavMeshQuery {
-        return DtNavMeshQuery(ffi::dtAllocNavMeshQuery());
+        DtNavMeshQuery(ffi::dtAllocNavMeshQuery())
     }
 
+    #[inline]
     fn inner(&self) -> &ffi::dtNavMeshQuery {
-        return unsafe { &*self.0 };
+        unsafe { &*self.0 }
     }
 
+    #[inline]
     fn inner_mut(&mut self) -> Pin<&mut ffi::dtNavMeshQuery> {
-        return unsafe { Pin::new_unchecked(&mut *self.0) };
+        unsafe { Pin::new_unchecked(&mut *self.0) }
     }
 
+    #[inline]
     pub fn as_ptr(&self) -> *const ffi::dtNavMeshQuery {
-        return self.0;
+        self.0
     }
 
+    #[inline]
     pub fn as_mut_ptr(&mut self) -> *mut ffi::dtNavMeshQuery {
-        return self.0;
+        self.0
     }
 
+    #[inline]
     pub fn init(&mut self, nav: &DtNavMesh, max_nodes: usize) -> RNResult<()> {
         return unsafe { self.inner_mut().init(nav.as_ptr(), max_nodes as i32) }.to_result();
     }
 
+    #[inline]
     pub fn with_mesh(nav: &DtNavMesh, max_nodes: usize) -> RNResult<DtNavMeshQuery> {
         let mut query = DtNavMeshQuery::new();
         query.init(nav, max_nodes)?;
-        return Ok(query);
+        Ok(query)
     }
 
     pub fn find_path(
@@ -477,7 +497,7 @@ impl DtNavMeshQuery {
             )
         }
         .to_result()?;
-        return Ok(path_count as usize);
+        Ok(path_count as usize)
     }
 
     pub fn find_straight_path(
@@ -520,7 +540,7 @@ impl DtNavMeshQuery {
             )
         }
         .to_result()?;
-        return Ok(straight_path_count as usize);
+        Ok(straight_path_count as usize)
     }
 
     pub fn init_sliced_find_path(
@@ -552,7 +572,7 @@ impl DtNavMeshQuery {
     pub fn update_sliced_find_path(&mut self, max_iter: usize) -> RNResult<usize> {
         let mut done_iters = 0;
         unsafe { self.inner_mut().updateSlicedFindPath(max_iter as i32, &mut done_iters) }.to_result()?;
-        return Ok(done_iters as usize);
+        Ok(done_iters as usize)
     }
 
     pub fn finalize_sliced_find_path(&mut self, path: &mut [DtPolyRef]) -> RNResult<usize> {
@@ -562,7 +582,7 @@ impl DtNavMeshQuery {
                 .finalizeSlicedFindPath(path.as_mut_ptr(), &mut path_count, path.len() as i32)
         }
         .to_result()?;
-        return Ok(path_count as usize);
+        Ok(path_count as usize)
     }
 
     pub fn finalize_sliced_find_path_partial(
@@ -581,7 +601,7 @@ impl DtNavMeshQuery {
             )
         }
         .to_result()?;
-        return Ok(path_count as usize);
+        Ok(path_count as usize)
     }
 
     pub fn find_polys_around_circle(
@@ -633,7 +653,7 @@ impl DtNavMeshQuery {
             )
         }
         .to_result()?;
-        return Ok(result_count as usize);
+        Ok(result_count as usize)
     }
 
     pub fn find_polys_around_shape(
@@ -684,7 +704,7 @@ impl DtNavMeshQuery {
             )
         }
         .to_result()?;
-        return Ok(result_count as usize);
+        Ok(result_count as usize)
     }
 
     pub fn get_path_from_dijkstra_search(&self, end_ref: DtPolyRef, path: &mut [DtPolyRef]) -> RNResult<usize> {
@@ -694,7 +714,7 @@ impl DtNavMeshQuery {
                 .getPathFromDijkstraSearch(end_ref, path.as_mut_ptr(), &mut path_count, path.len() as i32)
         }
         .to_result()?;
-        return Ok(path_count as usize);
+        Ok(path_count as usize)
     }
 
     /// Returns `Result<(nearest_ref: DtPolyRef, nearest_pt: [f32; 3])>`
@@ -716,7 +736,7 @@ impl DtNavMeshQuery {
             )
         }
         .to_result()?;
-        return Ok((nearest_ref, nearest_pt));
+        Ok((nearest_ref, nearest_pt))
     }
 
     /// Returns `Result<(nearest_ref: DtPolyRef, nearest_pt: [f32; 3], is_over_poly: bool)>`
@@ -740,7 +760,7 @@ impl DtNavMeshQuery {
             )
         }
         .to_result()?;
-        return Ok((nearest_ref, nearest_pt, is_over_poly));
+        Ok((nearest_ref, nearest_pt, is_over_poly))
     }
 
     pub fn query_polygons(
@@ -762,7 +782,7 @@ impl DtNavMeshQuery {
             )
         }
         .to_result()?;
-        return Ok(poly_count as usize);
+        Ok(poly_count as usize)
     }
 
     // TODO: query_polygons with dtPolyQuery
@@ -797,7 +817,7 @@ impl DtNavMeshQuery {
             )
         }
         .to_result()?;
-        return Ok(result_count as usize);
+        Ok(result_count as usize)
     }
 
     /// Returns `Result<(result_pos: [f32; 3], visited_count: usize)>`
@@ -824,7 +844,7 @@ impl DtNavMeshQuery {
             )
         }
         .to_result()?;
-        return Ok((result_pos, visited_count as usize));
+        Ok((result_pos, visited_count as usize))
     }
 
     /// Returns `Result<(t: f32, hit_normal: [f32; 3], path_count: usize)>`
@@ -860,7 +880,7 @@ impl DtNavMeshQuery {
             )
         }
         .to_result()?;
-        return Ok((t, hit_normal, path_count as usize));
+        Ok((t, hit_normal, path_count as usize))
     }
 
     pub fn raycast_2(
@@ -881,11 +901,11 @@ impl DtNavMeshQuery {
                 filter,
                 options as u32,
                 &mut hit,
-                prev_ref.unwrap_or(DtPolyRef::default()),
+                prev_ref.unwrap_or_default(),
             )
         }
         .to_result()?;
-        return Ok(hit);
+        Ok(hit)
     }
 
     /// Returns `Result<(hit_dist: f32, hit_pos: [f32; 3], hit_normal: [f32; 3])>`
@@ -911,7 +931,7 @@ impl DtNavMeshQuery {
             )
         }
         .to_result()?;
-        return Ok((hit_dist, hit_pos, hit_normal));
+        Ok((hit_dist, hit_pos, hit_normal))
     }
 
     pub fn get_poly_wall_segments(
@@ -941,7 +961,7 @@ impl DtNavMeshQuery {
             )
         }
         .to_result()?;
-        return Ok(segment_count as usize);
+        Ok(segment_count as usize)
     }
 
     /// Returns `Result<(closest: [f32; 3], pos_over_poly: bool)>`
@@ -953,7 +973,7 @@ impl DtNavMeshQuery {
                 .closestPointOnPoly(re, pos.as_ptr(), closest.as_mut_ptr(), &mut pos_over_poly)
         }
         .to_result()?;
-        return Ok((closest, pos_over_poly));
+        Ok((closest, pos_over_poly))
     }
 
     pub fn closest_point_on_poly_boundary(&self, re: DtPolyRef, pos: &[f32; 3]) -> RNResult<[f32; 3]> {
@@ -963,19 +983,21 @@ impl DtNavMeshQuery {
                 .closestPointOnPolyBoundary(re, pos.as_ptr(), closest.as_mut_ptr())
         }
         .to_result()?;
-        return Ok(closest);
+        Ok(closest)
     }
 
     pub fn get_poly_height(&self, re: DtPolyRef, pos: &[f32; 3]) -> RNResult<f32> {
         let mut height = 0.0;
         unsafe { self.inner().getPolyHeight(re, pos.as_ptr(), &mut height) }.to_result()?;
-        return Ok(height);
+        Ok(height)
     }
 
+    #[inline]
     pub fn is_valid_poly_ref(&self, re: DtPolyRef, filter: &DtQueryFilter) -> bool {
         return unsafe { self.inner().isValidPolyRef(re, filter) };
     }
 
+    #[inline]
     pub fn is_in_closed_list(&self, re: DtPolyRef) -> bool {
         return unsafe { self.inner().isInClosedList(re) };
     }
@@ -994,7 +1016,7 @@ impl DtNavMeshQuery {
         let mut random_pt = [0.0; 3];
         unsafe { ffi::dtnmq_findRandomPoint(self.inner(), filter, frand, &mut random_ref, random_pt.as_mut_ptr()) }
             .to_result()?;
-        return Ok((random_ref, random_pt));
+        Ok((random_ref, random_pt))
     }
 
     /// Returns `Result<(random_ref: DtPolyRef, random_pt: [f32; 3])>`
@@ -1021,6 +1043,6 @@ impl DtNavMeshQuery {
             )
         }
         .to_result()?;
-        return Ok((random_ref, random_pt));
+        Ok((random_ref, random_pt))
     }
 }
