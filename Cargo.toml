@@ -34,7 +34,7 @@ rkyv = ["dep:rkyv", "dep:miniz_oxide"]
 [dependencies]
 cxx = "1.0"
 miniz_oxide = { version = "0.7", optional = true }
-rkyv = { version = "0.7", optional = true }
+rkyv = { version = "0.8", optional = true }
 static_assertions = "1.1"
 thiserror = "1.0"
 
