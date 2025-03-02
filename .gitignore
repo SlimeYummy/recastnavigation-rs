@@ -17,3 +17,5 @@ Cargo.lock
 .vscode/
 
 output/
+
+flag_check*
